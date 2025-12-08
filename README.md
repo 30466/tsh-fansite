@@ -10,13 +10,11 @@
 
 **[ 点击访问项目 » 剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit)**
 
- **网站界面1**  <img src="src/assets/screenshot1.png" width="400"> 
+## 📸 网站界面预览
 
-**网站界面2**
- <img src="src/assets/screenshot2.png" width="400"> 
-
-**网站界面3**
-<img src="src/assets/screenshot3.png" width="400"> 
+| 日期卡片归档 | 切片列表 (搜索) | 日历视图 |
+| :---: | :---: | :---: |
+| <img src="screenshots/screenshot1.png" width="300" alt="日期卡片归档" /> | <img src="screenshots/screenshot2.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot3.png" width="300" alt="日历视图" /> 
 
 
 ## ✨ 主要功能
