@@ -21,6 +21,9 @@
         <a href="https://msg48.org" target="_blank">口袋48历史记录搜索网站</a>
       </p>
       <p>
+        <a href="https://gitee.com/albert-chen04/snh48-fansite" target="_blank">本项目地址</a>
+      </p>
+      <p>
         <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频处理工具箱，用于批量裁剪切片并得出切片本，本网站提供下载的就是这个切片本。后面会支持切片本的一键导入剪辑</a>
       </p>
       <p>
