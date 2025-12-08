@@ -24,7 +24,7 @@
         <a href="https://gitee.com/albert-chen04/snh48-fansite" target="_blank">本项目地址</a>
       </p>
       <p>
-        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频剪辑软件，可批量裁剪切片并得出切片本，本网站提供下载的就是这个切片本，软件支持切片本的一键导入剪切。其外还有更多的功能</a>
+        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频剪辑软件，可批量裁剪切片并得出切片本，本网站提供下载的就是这个切片本，软件支持切片本的一键导入剪切。除此，还有更多功能</a>
       </p>
       <p>
         <a href="https://gitee.com/albert-chen04/personal-homepage" target="_blank">我的个人主页</a>
