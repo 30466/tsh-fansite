@@ -12,7 +12,7 @@
         <a href="https://gitee.com/albert-chen04/albert-music-frontend" target="_blank">Albert Music (小偶像音乐网站)</a>
       </p>
       <p>
-        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页，用于下载口袋48录播与各平台直播抓取(需要要科学上网)</a>
+        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页,用于下载口袋48录播与各平台直播抓取(需要要科学上网)</a>
       </p>
       <p>
         <a href="https://sd.abm48.com" target="_blank">弹幕唱歌检测网站</a>
@@ -24,7 +24,7 @@
         <a href="https://gitee.com/albert-chen04/snh48-fansite" target="_blank">本项目地址</a>
       </p>
       <p>
-        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频处理工具箱，用于批量裁剪切片并得出切片本，本网站提供下载的就是这个切片本。后面会支持切片本的一键导入剪辑</a>
+        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频剪辑软件，用于批量裁剪切片并得出切片本.本网站提供下载的就是这个切片本.软件支持切片本的一键导入剪切</a>
       </p>
       <p>
         <a href="https://gitee.com/albert-chen04/personal-homepage" target="_blank">我的个人主页</a>
