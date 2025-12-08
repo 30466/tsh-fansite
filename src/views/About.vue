@@ -9,10 +9,10 @@
       
       <h3>🔗 友情链接</h3>
       <p>
-        <a href="https://gitee.com/albert-chen04/albert-music-frontend" target="_blank">Albert Music (小偶像音乐网站)</a>
+        <a href="https://gitee.com/albert-chen04/albert-music-frontend" target="_blank">Albert Music （小偶像音乐网站）</a>
       </p>
       <p>
-        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页,用于下载口袋48录播与各平台直播抓取(需要要科学上网)</a>
+        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页，用于下载口袋48录播与各平台直播抓取（需要要科学上网）</a>
       </p>
       <p>
         <a href="https://sd.abm48.com" target="_blank">弹幕唱歌检测网站</a>
@@ -24,7 +24,7 @@
         <a href="https://gitee.com/albert-chen04/snh48-fansite" target="_blank">本项目地址</a>
       </p>
       <p>
-        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频剪辑软件，用于批量裁剪切片并得出切片本.本网站提供下载的就是这个切片本.软件支持切片本的一键导入剪切</a>
+        <a href="https://gitee.com/albert-chen04/video-editing-toolkit" target="_blank">我写的视频剪辑软件，可批量裁剪切片并得出切片本，本网站提供下载的就是这个切片本，软件支持切片本的一键导入剪切。其外还有更多的功能</a>
       </p>
       <p>
         <a href="https://gitee.com/albert-chen04/personal-homepage" target="_blank">我的个人主页</a>
@@ -34,7 +34,7 @@
       
       <h3>✂️ 关于剪辑</h3>
       <p>平时使用 48Tools 下载录播，并用弹幕检测唱歌网站/脚本来看看哪天有唱歌再去剪辑</p>
-      <p>做这个网站就是想记录一下，然后给其他老师提供切片本。当然我现在忙着升学，还是希望有其他老师接替我做唱歌切片，我现在基本都是三周切一次</p>
+      <p>做这个网站就是想记录一下，然后给其他老师提供切片本。我现在忙着升学，当然还是希望有其他老师接替我做唱歌切片，我现在基本都是三周切一次</p>
       <!-- 核心修改：联系我模块 (模仿你的个人网站) -->
       <div class="contact-section">
 
