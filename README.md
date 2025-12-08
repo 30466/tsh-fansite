@@ -1,54 +1,62 @@
-# CGT48-谭思慧 唱歌切片收藏馆
+这份 README 写的已经很棒了！但我帮你把**最新开发的“Web版批量剪辑”功能**加进去了，并且更新了 **技术栈** 和 **Nginx 配置**（因为 `ffmpeg.wasm` 需要特殊的响应头，这一点在文档里体现非常重要）。
 
-**[🎤 点击访问网站 » CGT48-谭思慧 ✽ 唱歌切片收藏馆 ](https://tsh.abm48.com/)**
+以下是重新润色并完善后的 README.md：
 
 ---
 
-这是一个为CGT48成员谭思慧建立的个人应援网站。项目核心是**根据日常直播的唱歌切片文本记录**，自动生成一个可检索、可追溯的歌曲归档库，方便粉丝随时考古和安利。
+# 🎤 CGT48-谭思慧 唱歌切片收藏馆
 
-切片本是根据我自己写的剪辑软件，可以通过一键导入该网站的切片本到该剪辑软件做批量剪辑
+<p align="center">
+  <a href="https://tsh.abm48.com/">
+    <img src="https://img.shields.io/badge/Live-点击访问网站-ff6b81?style=for-the-badge&logo=safari" alt="Website">
+  </a>
+  <a href="https://gitee.com/albert-chen04/video-editing-toolkit">
+    <img src="https://img.shields.io/badge/Tools-桌面版剪辑软件-409EFF?style=for-the-badge&logo=python" alt="Tools">
+  </a>
+</p>
 
-**[ 点击访问项目 » 剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit)**
+这是一个为 **CGT48 成员谭思慧** 建立的个人应援档案站。
 
-## 📸 网站界面预览
+项目核心是基于**直播唱歌切片文本记录**，自动生成一个可检索、可追溯、可下载的歌曲归档库。同时集成了**Web端在线批量剪辑工具**，让粉丝可以无需安装软件，直接在浏览器中利用切片本处理视频。
 
-| 日期卡片归档 | 切片列表 (搜索) | 日历视图 |
+## 📸 界面预览
+
+| 日期归档墙 | 切片检索与列表 | 在线批量剪辑 (Web版) |
 | :---: | :---: | :---: |
-| <img src="screenshots/screenshot1.png" width="300" alt="日期卡片归档" /> | <img src="screenshots/screenshot2.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot3.png" width="300" alt="日历视图" /> 
+| <img src="screenshots/screenshot1.png" width="300" alt="日期归档" /> | <img src="screenshots/screenshot2.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot3.png" width="300" alt="在线剪辑" /> |
 
+## ✨ 核心功能
 
-## ✨ 主要功能
+### 1. 🗂️ 归档与检索
+*   **多视图浏览**: 提供 **“日历归档墙”** 和 **“瀑布流列表”** 两种模式，支持按日期快速回溯。
+*   **毫秒级搜索**: 纯前端实现，支持输入 **歌名** 或 **日期** (如 `2025-12-08`) 实时过滤。
+*   **双站联动**: 一键复制 `歌名+日期` 组合关键词，并自动跳转至 [小偶像音乐站](https://abm48.com)，实现“查到即听到”。
 
-- **多视图浏览**:
-  - **日历视图**: 以日历形式直观展示有唱歌记录的日期，方便快速跳转。
-  - **日期卡片**: 按日期聚合展示歌单，预览当日曲目。
-  - **切片列表**: 瀑布流展示所有歌曲切片，支持模糊搜索。
+### 2. ✂️ 在线批量剪辑 (New!)
+*   **零基础使用**: 这是一个移植自 [桌面版剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit) 的 Web 工具。
+*   **纯本地运算**: 基于 **WebAssembly (FFmpeg.wasm)** 技术，所有剪辑在用户浏览器内完成，**无需上传视频**，保护隐私且速度极快。
+*   **智能格式转换**: 支持导出 `MP4` (Copy流/极速)、`MP3` (自动转码)、`WAV` 等多种格式。
+*   **一键打包**: 自动将剪好的片段和对应的记录文本打包成 `.zip` 下载。
 
-- **快速检索**:
-  - 纯前端实现，支持按**歌名**或**日期** (`YYYY-MM-DD`) 毫秒级搜索。
+### 3. 🔄 自动化数据流
+*   **自动更新**: 服务器端配置了自动化脚本。只需上传 `.txt` 切片记录文件，网站数据会在 1 分钟内自动解析并更新，无需重新编译前端。
+*   **批量下载**: 支持将搜索结果对应的源 `.txt` 文件批量打包下载。
 
-- **联动音乐站**:
-  - 一键**复制** `歌名 + 歌手 + 日期` 关键词并跳转至主音乐站，方便用户粘贴搜索，实现双站联动。
+## 🛠️ 技术栈
 
-- **数据支持**:
-  - **批量下载**: 支持将当前搜索结果的所有源 TXT 文件打包为 `.zip` 下载。
-  - **在线阅读**: 可直接在网页弹窗中阅读和下载单个 TXT 切片源文件。
+*   **核心框架**: Vue 3 + Vite
+*   **UI 组件库**: Element Plus
+*   **音视频处理**: **FFmpeg.wasm** (WebAssembly)
+*   **数据脚本**: Node.js (服务端自动化解析生成 `data.json`)
+*   **工具库**: JSZip (文件打包)
 
-- **自动化更新**:
-  - 服务器端部署了自动化脚本，仅需上传最新的 `.txt` 文件，网站数据即可在1分钟内自动更新，无需重新打包部署前端。
+## 🚀 快速开始
 
-## 🔧 技术栈
-
-- **前端**: Vue 3 + Vite
-- **UI 框架**: Element Plus
-- **数据处理**: Node.js (用于解析 TXT 并生成 `data.json`)
-- **打包工具**: JSZip (用于批量下载功能)
-
-## 🚀 快速开始 (本地开发)
+### 本地开发
 
 1.  **克隆项目**
     ```bash
-    git clone [你的项目Git地址]
+    git clone [项目地址]
     cd tsh-fansite
     ```
 
@@ -57,53 +65,62 @@
     npm install
     ```
 
-3.  **准备数据源**
-    - 将所有 `.txt` 格式的切片记录文件放入 `scripts/txt_source/` 目录下。
-
-4.  **生成数据文件**
-    - 运行以下命令，脚本会自动读取所有 `.txt` 文件，并生成供前端使用的 `public/data.json`。
+3.  **准备数据**
+    *   将切片记录 `.txt` 文件放入 `scripts/txt_source/` 目录。
+    *   运行脚本生成数据：
     ```bash
     npm run gen
     ```
 
-5.  **启动开发环境**
+4.  **启动服务**
     ```bash
     npm run dev
     ```
 
-## 🔄 数据更新流程
+## 📦 部署说明
 
-本项目实现了数据与前端分离，更新内容非常便捷。
+本项目为纯静态网站，但为了支持 **FFmpeg.wasm** 的多线程特性，服务器 (**Nginx**) 必须配置特定的响应头 (COOP/COEP)。
 
-#### 方式一：本地手动更新 (适用于 GitHub Pages 等静态托管)
-
-1.  将新的 `.txt` 文件添加到 `scripts/txt_source/`。
-2.  运行 `npm run gen` 生成最新的 `data.json`。
-3.  运行 `npm run build` 打包项目。
-4.  将 `dist` 目录下的所有文件上传到服务器。
-
-#### 方式二：服务器自动更新 (当前线上部署方案)
-
-本项目已在服务器端配置了自动化流程，开发者只需关心源数据即可。
-
-1.  **上传TXT文件**: 通过 FTP、SFTP 或宝塔面板，将新的 `.txt` 文件上传至服务器的指定目录 (`/www/wwwroot/tsh.abm48.com/scripts/txt_source/`)。
-2.  **等待自动执行**: 服务器上的计划任务（Cron Job）会每分钟执行一次 `gen-data.js` 脚本，自动将最新的 `.txt` 文件解析并覆盖 `data.json`。
-3.  **刷新网页**: 用户访问网站时，会自动拉取到最新的 `data.json`，内容即时更新。
-
-## 部署
-
-本项目是一个纯静态网站，可以部署在任何支持静态文件的服务器或平台上。
-
-若使用 Nginx 部署，请务必在站点配置中添加 `try_files` 规则，以防止刷新页面时出现 404 错误。
+### 推荐 Nginx 配置
 
 ```nginx
-location / {
-    root /path/to/your/project;
-    index index.html index.htm;
-    try_files $uri $uri/ /index.html;
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /www/wwwroot/your-project;
+    index index.html;
+
+    # 1. 核心：为所有 HTML/JS/CSS 添加跨域隔离头，否则 FFmpeg 无法启动
+    add_header Cross-Origin-Opener-Policy same-origin always;
+    add_header Cross-Origin-Embedder-Policy require-corp always;
+
+    # 2. 正确处理 .wasm 文件类型
+    location ~ \.wasm$ {
+        default_type application/wasm;
+    }
+
+    # 3. 防止 Vue 路由刷新 404
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 }
 ```
 
-## 致谢
+### 自动化更新数据配置 (Linux/宝塔)
+
+1.  在服务器安装 Node.js。
+2.  设置计划任务（Cron Job），每分钟执行一次生成脚本：
+    ```bash
+    /path/to/node /www/wwwroot/your-project/scripts/gen-data.js
+    ```
+3.  只需通过 FTP 上传新的 TXT 文件，网站即可自动更新。
+
+## 🔗 相关项目
+
+*   **[Video Editing Toolkit](https://gitee.com/albert-chen04/video-editing-toolkit)**: 本站在线剪辑功能的 Python 桌面版原身，功能更强大。
+*   **[Albert Music Frontend](https://abm48.com)**: 关联的音乐网站。
+*   **[Singing Detector](https://gitee.com/albert-chen04/singing_detector)**: 弹幕唱歌检测工具。
+
+## ❤️ 致谢
 
 感谢谭思慧每天带来的动听歌声。

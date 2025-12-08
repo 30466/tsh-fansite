@@ -10,7 +10,40 @@
             <router-link to="/">归档检索</router-link>
             <router-link to="/about">关于本站</router-link>
             <a href="https://abm48.com" target="_blank">小偶像音乐网站</a>
-            <a href="https://sd.abm48.com/" target="_blank">弹幕唱歌检测</a>
+            <!-- 【核心修改】下拉菜单功能区 -->
+            <el-dropdown class="tool-dropdown" :show-timeout="100">
+              <span class="el-dropdown-link">
+                🔧 功能区
+                <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <!-- 选项1: 站内路由跳转 -->
+                  <el-dropdown-item>
+                    <router-link to="/clip" class="dropdown-item-link">
+                      ✂️ 批量剪切（可导入切片本剪切）
+                    </router-link>
+                  </el-dropdown-item>
+        
+                  <!-- 选项2: 外部链接跳转 -->
+                  <el-dropdown-item>
+                    <a href="https://sd.abm48.com/" target="_blank" class="dropdown-item-link">
+                      🎤 弹幕唱歌检测
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a href="https://msg48.org" target="_blank" class="dropdown-item-link">
+                      🗂️ 口袋48历史记录搜索
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a href="https://github.com/duan602728596/48tools/releases" target="_blank" class="dropdown-item-link">
+                      💾 48tools
+                    </a>
+                  </el-dropdown-item>                                    
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </div>
       </nav>
@@ -24,6 +57,7 @@
 
 <script setup>
 import bgImage from './assets/bg.jpg'
+import { ArrowDown } from '@element-plus/icons-vue'
 // 2. 引入 Element Plus 中文语言包
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElConfigProvider } from 'element-plus'
@@ -116,5 +150,34 @@ body {
   margin: 30px auto;
   padding: 0 20px;
   min-height: 80vh;
+}
+
+/* 下拉触发文字的样式 (模仿其他链接) */
+.el-dropdown-link {
+  cursor: pointer;
+  color: #303133;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  outline: none; /* 去掉点击时的蓝框 */
+}
+
+/* 鼠标悬停变蓝 */
+.el-dropdown-link:hover {
+  color: #409EFF;
+}
+
+/* 下拉菜单里的链接样式 */
+.dropdown-item-link {
+  text-decoration: none;
+  color: #606266;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dropdown-item-link:hover {
+  color: #409EFF;
 }
 </style>
