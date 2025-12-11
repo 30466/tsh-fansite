@@ -38,7 +38,7 @@
       <!-- 核心修改：联系我模块 (模仿你的个人网站) -->
       <div class="contact-section">
 
-      <h3 class="contact-subtitle-new">如果你想与我交流，可以通过以下方式联系我</h3>
+      <h3 class="contact-subtitle-new">如果你想与我交流，或需要定制类似应援网站，可以通过以下方式联系我</h3>
         
         <div class="contact-buttons">
           <!-- 发送邮件 -->
