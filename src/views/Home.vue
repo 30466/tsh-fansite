@@ -6,17 +6,28 @@
       <template #header>
         <div class="card-header">
           <span class="header-title">💡 检索说明</span>
-          <!-- 核心修改：蓝色大按钮，显示TXT数量 -->
-          <el-button 
-            type="primary" 
-            size="large" 
-            class="batch-download-btn"
-            :loading="downloading"
-            @click="handleBatchDownload"
-          >
-            <el-icon class="el-icon--left"><Download /></el-icon>
-            批量下载当前列表切片本 ({{ fileCount }})
-          </el-button>
+          <div class="header-actions">
+            <!-- 1. 新增的上传按钮 -->
+            <router-link to="/upload" class="upload-link">
+              <el-button type="warning" plain size="large">
+                <!-- 这里的 Upload 图标会自动导入，不用管 script -->
+                <el-icon class="el-icon--left"><Upload /></el-icon>
+                上传切片本
+              </el-button>
+            </router-link>
+
+            <!-- 批量下载按钮 -->
+            <el-button 
+              type="primary" 
+              size="large" 
+              class="batch-download-btn"
+              :loading="downloading"
+              @click="handleBatchDownload"
+            >
+              <el-icon class="el-icon--left"><Download /></el-icon>
+              批量下载当前列表切片本 ({{ fileCount }})
+            </el-button>
+          </div>
         </div>
       </template>
       <div class="notice-content">
@@ -330,7 +341,25 @@ const handleBatchDownload = async () => {
 <style scoped>
 .home-page { padding-bottom: 50px; }
 .notice-card { margin-bottom: 20px; background: rgba(255, 255, 255, 0.95); }
-.card-header { display: flex; justify-content: space-between; align-items: center; }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* 允许换行，防止手机端挤爆 */
+  gap: 10px;       /* 上下左右的间距 */
+}
+
+/* --- 新增以下样式 --- */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 两个按钮之间的间距 */
+  flex-wrap: wrap;
+}
+
+.upload-link {
+  text-decoration: none; /* 去掉 router-link 默认的下划线 */
+}
 .header-title { font-weight: bold; font-size: 18px; color: #333; }
 .batch-download-btn { font-weight: bold; font-size: 16px; box-shadow: 0 4px 10px rgba(64, 158, 255, 0.3); }
 .notice-content p { margin: 5px 0; font-size: 14px; color: #555; }

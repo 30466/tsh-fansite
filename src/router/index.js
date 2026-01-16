@@ -14,7 +14,16 @@ const router = createRouter({
       name: 'about',
       component: () => import('../views/About.vue')
     },
-    { path: '/clip', name: 'clip', component: () => import('../views/Clip.vue') }
+     {
+      path: '/clip',
+      name: 'clip',
+      component: () => import('../views/Clip.vue')
+    },
+    {
+      path: '/upload',
+      name: 'upload',
+      component: () => import('../views/Upload.vue')
+    }
   ]
 })
 
