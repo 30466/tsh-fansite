@@ -217,6 +217,7 @@ const resetToToday = () => {
 };
 
 onMounted(async () => {
+  document.title = '谭思慧 ✽ 直播唱歌记录';
   try {
     const res = await fetch(`/data.json?t=${new Date().getTime()}`);
     if (res.ok) {

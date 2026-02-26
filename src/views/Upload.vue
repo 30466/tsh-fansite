@@ -95,14 +95,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { FolderAdd, UploadFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+
+onMounted(() => {
+  document.title = '谭思慧 ✽ 上传切片本';
+});
 
 // 这里的 URL 是刚才创建的 php 文件，因为在同一个域名下，用相对路径即可
 // 如果是本地开发环境 (localhost)，需要写死服务器地址 '/upload.php' 并处理跨域
 // 既然你是在服务器调试，直接写 '/upload.php'
-const UPLOAD_URL = '/upload.php'; 
+const UPLOAD_URL = '/upload.php';
 
 const password = ref('');
 const files = ref([]);

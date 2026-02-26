@@ -5,51 +5,69 @@
       <nav class="nav-bar">
         <!-- ... 导航栏代码保持不变 ... -->
         <div class="nav-content">
-          <span class="logo">CGT48谭思慧 ✽ 唱歌收藏馆 🎤</span>
+          <span class="logo">CGT48 谭思慧</span>
           <div class="links">
-            <router-link to="/">归档检索</router-link>
-            <router-link to="/about">关于本站</router-link>
-            <a href="https://abm48.com" target="_blank">小偶像音乐网站</a>
-            <!-- 【核心修改】下拉菜单功能区 -->
+            <!-- 唱歌 - 下拉菜单 -->
             <el-dropdown class="tool-dropdown" :show-timeout="100">
               <span class="el-dropdown-link">
-                🔧 功能区
+                唱歌
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <!-- 外部链接跳转 -->
                   <el-dropdown-item>
-                    <a href="https://tools.abm48.com/clip" target="_blank" class="dropdown-item-link">
-                      ✂️ 批量剪切（可导入切片本剪切）
+                    <router-link to="/" class="dropdown-item-link">
+                    🎤 直播唱歌切片记录
+                    </router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <a href="https://abm48.com" target="_blank" class="dropdown-item-link">
+                    🎤 小偶像音乐网站(abm48)
                     </a>
                   </el-dropdown-item>
-        
                   <el-dropdown-item>
                     <a href="https://sd.abm48.com/" target="_blank" class="dropdown-item-link">
-                      🎤 弹幕唱歌检测
+                    🎤 弹幕唱歌检测
                     </a>
                   </el-dropdown-item>
-
                   <el-dropdown-item>
-                    <a href="https://tools.abm48.com/" target="_blank" class="dropdown-item-link">
-                      ✂️ 工具箱
+                    <a href="https://tools.abm48.com/clip" target="_blank" class="dropdown-item-link">
+                    ✂️ 批量剪切（可导入切片本剪切）
                     </a>
                   </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
 
+            <!-- 口袋48 - 下拉菜单 -->
+            <el-dropdown class="tool-dropdown" :show-timeout="100">
+              <span class="el-dropdown-link">
+                口袋48
+                <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
                   <el-dropdown-item>
                     <a href="https://msg48.org" target="_blank" class="dropdown-item-link">
-                      🗂️ 口袋48历史记录搜索
+                    🗂️ 口袋48历史记录搜索
                     </a>
                   </el-dropdown-item>
                   <el-dropdown-item>
                     <a href="https://github.com/duan602728596/48tools/releases" target="_blank" class="dropdown-item-link">
-                      💾 48tools
+                    💾 48tools
                     </a>
-                  </el-dropdown-item>                                    
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+            <!-- 简介 -->
+            <router-link to="/profile">简介</router-link>
+
+            <!-- 工具 - 直接跳转 -->
+            <a href="https://tools.abm48.com/" target="_blank">工具</a>
+
+            <!-- 关于 -->
+            <router-link to="/about">关于</router-link>
           </div>
         </div>
       </nav>
@@ -105,11 +123,11 @@ body {
   flex-wrap: wrap; 
 }
 
-/* Logo 保持你要求的粉色 */
+/* Logo 改成红色 */
 .logo { 
   font-weight: bold; 
   font-size: 1.3rem; 
-  color: #ff6b81; 
+  color: #ff002b; 
   margin-right: 20px;
 }
 

@@ -12,7 +12,7 @@
         <a href="https://gitee.com/albert-chen04/albert-music-frontend" target="_blank">Albert Music （小偶像音乐网站）</a>
       </p>
       <p>
-        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页，用于下载口袋48录播与各平台直播抓取（需要要科学上网）</a>
+        <a href="https://github.com/duan602728596/48tools/releases" target="_blank">48tools下载主页，用于下载口袋48录播与各平台直播抓取（可能需要科学上网）</a>
       </p>
       <p>
         <a href="https://sd.abm48.com" target="_blank">弹幕唱歌检测网站</a>
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 // 引入图标
 import { Message, ChatDotRound, Bell } from '@element-plus/icons-vue';
@@ -85,6 +85,10 @@ import { Message, ChatDotRound, Bell } from '@element-plus/icons-vue';
 // 引入二维码图片 (请确保 src/assets 下有这两张图)
 import wechatImg from '../assets/wechat.png';
 import qqImg from '../assets/qq.png';
+
+onMounted(() => {
+  document.title = '谭思慧 ✽ 关于';
+});
 
 const qrVisible = ref(false);
 const qrType = ref('wechat'); // 'wechat' or 'qq'
