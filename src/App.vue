@@ -75,6 +75,8 @@
       <div class="main-container">
         <router-view />
       </div>
+
+      <ElectionBusiness />
     </div>
   </el-config-provider>
 </template>
@@ -82,6 +84,7 @@
 <script setup>
 import bgImage from './assets/bg.jpg'
 import { ArrowDown } from '@element-plus/icons-vue'
+import ElectionBusiness from './components/ElectionBusiness.vue'
 // 2. 引入 Element Plus 中文语言包
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElConfigProvider } from 'element-plus'
