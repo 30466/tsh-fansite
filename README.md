@@ -15,9 +15,9 @@
 
 ## 📸 界面预览
 
-| 日期归档墙 | 切片检索与列表 | 成员简介 | 上传后台 |
-| :---: | :---: | :---: | :---: |
-| <img src="screenshots/screenshot1.png" width="300" alt="日期归档" /> | <img src="screenshots/screenshot2.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot3.png" width="300" alt="成员简介" /> | <img src="screenshots/screenshot4.png" width="300" alt="上传后台" /> |
+| 日期归档墙 | 切片检索与列表 | 日历归档墙 | 成员简介 | 上传后台 |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="screenshots/screenshot1.png" width="300" alt="日期归档" /> | <img src="screenshots/screenshot2.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot3.png" width="300" alt="切片列表" /> | <img src="screenshots/screenshot4.png" width="300" alt="成员简介" /> | <img src="screenshots/screenshot5.png" width="300" alt="上传后台" /> |
 
 ## ✨ 核心功能
 
@@ -31,7 +31,10 @@
 *   **批量下载**: 支持将搜索结果对应的源 `.txt` 文件批量打包下载。
 
 ### 3. 👤 成员简介
-*   **API 数据**: 调用后端 API 获取成员基本信息、总选排名等数据。
+*   **API 数据**: 通过 `profile.php` 后端代理调用 [abm48.com](https://abm48.com) 公开 API 获取成员基本信息、总选排名等数据。
+  - 名称→ID 映射：`GET https://abm48.com/api/public/snh48/mapping`
+  - 成员详情：`GET https://abm48.com/api/public/snh48/members/{id}`
+  - 总选排名：`GET https://abm48.com/api/public/snh48/members/{id}/election-ranks`
 *   **图片预览**: 支持头像等图片的全屏预览查看。
 
 ## 🛠️ 技术栈
@@ -46,21 +49,23 @@
 
 ### 环境配置
 
-项目需要一个 `.env` 文件来配置后端 API 地址。在项目根目录创建 `.env` 文件：
+项目需要创建一个 `.env` 文件存放上传管理密码（由 `upload.php` 后端读取校验）。
+
+在项目根目录创建 `.env` 文件：
 
 ```bash
 # .env
-# 后端 API 地址（开发环境指向本地 PHP 服务）
-VITE_API_BASE_URL=http://localhost:8000
+# 上传后台管理密码（upload.php 读取此变量校验，前端不可见）
+UPLOAD_PASSWORD=your_password_here
 ```
 
-如果不创建 `.env` 文件，Vite 开发服务器会使用默认的代理配置，将 `/profile.php` 等请求转发到 `http://localhost:8000`。
+如果不创建此文件或未设置 `UPLOAD_PASSWORD`，上传页面将无法使用。
 
 ### 本地开发
 
-1.  **克隆项目**
+1.  **克隆项目（lite 分支）**
     ```bash
-    git clone [项目地址]
+    git clone -b lite [项目地址]
     cd tsh-fansite
     ```
 
@@ -124,15 +129,6 @@ server {
     }
 }
 ```
-
-### 自动化更新数据配置 (Linux/宝塔)
-
-1.  在服务器安装 Node.js。
-2.  设置计划任务（Cron Job），每分钟执行一次生成脚本：
-    ```bash
-    /path/to/node /www/wwwroot/your-project/scripts/gen-data.js
-    ```
-3.  只需通过 FTP 上传新的 TXT 文件，网站即可自动更新。
 
 ## 🌿 分支说明
 
