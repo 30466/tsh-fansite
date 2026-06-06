@@ -48,6 +48,11 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item>
+                    <a href="https://msg48.org/live/89653513" target="_blank" class="dropdown-item-link">
+                    📺 口袋48录播回放
+                    </a>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
                     <a href="https://msg48.org" target="_blank" class="dropdown-item-link">
                     🗂️ 口袋48历史记录搜索
                     </a>
