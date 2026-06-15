@@ -78,7 +78,7 @@ import { ref, computed } from 'vue'
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 
 const images = [
-  { src: '/images/election-business/直播业务.png', label: '直播业务' },
+  { src: '/images/election-business/直播业务.jpg', label: '直播业务' },
   { src: '/images/election-business/直播间业务.jpg', label: '直播间业务' },
   { src: '/images/election-business/实物业务.jpg', label: '实物业务' },
   { src: '/images/election-business/彩蛋奖励.jpg', label: '彩蛋奖励' },
@@ -139,7 +139,13 @@ function openFullscreen(index) {
   position: fixed;
   top: 80px;
   right: 20px;
-  z-index: 99;
+  z-index: 101;
+}
+
+@media (max-width: 768px) {
+  .election-business-wrapper {
+    top: 120px;
+  }
 }
 
 .election-trigger {
