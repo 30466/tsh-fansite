@@ -1,4 +1,4 @@
-const TOOLS_HOST = import.meta.env.DEV ? '/tools-api' : 'https://tools.abm48.com'
+const TOOLS_HOST = '/tools-api'
 
 function deviceId() {
   return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 18)
