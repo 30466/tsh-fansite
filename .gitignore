@@ -53,6 +53,13 @@ coverage
 junit.xml
 
 # Generated data (from your script)
-# This ensures that the generated JSON file on your local machine
-# doesn't get accidentally committed. The server has its own version.
 public/data.json
+data.json
+
+# User-uploaded clip data
+scripts/txt_source/*.txt
+
+# SQLite databases
+database.db
+database.db-shm
+database.db-wal
