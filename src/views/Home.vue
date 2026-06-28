@@ -158,7 +158,7 @@
     </div>
 
     <!-- TXT 弹窗 -->
-    <el-dialog v-model="dialogVisible" width="80%" top="5vh">
+    <el-dialog v-model="dialogVisible" class="content-dialog" width="90vw" top="5vh">
       <template #header>
         <span class="dialog-title">{{ currentFile.filename }}</span>
       </template>
@@ -172,7 +172,7 @@
     </el-dialog>
 
     <!-- 一键剪切弹窗 -->
-    <el-dialog v-model="clipDialogVisible" width="500px" top="10vh">
+    <el-dialog v-model="clipDialogVisible" class="clip-dialog" width="90vw" top="5vh">
       <template #header>
         <span class="dialog-title">一键剪切</span>
       </template>
@@ -209,6 +209,11 @@
             <el-option v-if="clipOutputCategory === 'audio'" label="OGG" value="ogg" />
           </el-select>
         </div>
+        <div class="setting-item" style="margin-top: 15px">
+          <span class="label">并发：</span>
+          <el-input-number v-model="clipConcurrency" :min="5" :max="30" :step="5" size="large" style="width: 120px" />
+          <span class="tip" style="font-size: 12px; color: #909399; margin-left: 8px">同时下载分片数</span>
+        </div>
       </div>
       <el-divider />
       <div class="log-box" ref="clipLogRef">
@@ -216,7 +221,7 @@
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="clipDialogVisible = false">取消</el-button>
+          <el-button @click="handleCancelClip">取消</el-button>
           <el-button
             type="danger"
             :loading="isClipping"
@@ -259,8 +264,27 @@ const clipTargetFormat = ref('ts');
 const isClipping = ref(false);
 const clipLogs = ref([]);
 const clipLogRef = ref(null);
-const ffmpegMgr = new FFmpegManager((msg) => {
+const clipConcurrency = ref(15);
+const clipAbortController = ref(null);
+
+const addClipLog = (msg) => {
   clipLogs.value.push(msg);
+  nextTick(() => {
+    if (clipLogRef.value) {
+      clipLogRef.value.scrollTop = clipLogRef.value.scrollHeight;
+    }
+  });
+};
+
+const handleCancelClip = () => {
+  if (clipAbortController.value) {
+    clipAbortController.value.abort();
+  }
+  clipDialogVisible.value = false;
+};
+
+const ffmpegMgr = new FFmpegManager((msg) => {
+  addClipLog(msg);
   nextTick(() => {
     if (clipLogRef.value) clipLogRef.value.scrollTop = clipLogRef.value.scrollHeight;
   });
@@ -473,28 +497,32 @@ const handleClipSong = async () => {
   const item = clipTarget.value;
   if (!item) return;
 
+  const controller = new AbortController();
+  clipAbortController.value = controller;
+  const signal = controller.signal;
+
   isClipping.value = true;
   clipLogs.value = [];
 
   try {
     if (!ffmpegMgr.isLoaded.value) {
-      clipLogs.value.push('⏳ 正在加载 FFmpeg 核心...');
+      addClipLog('⏳ 正在加载 FFmpeg 核心...');
       await ffmpegMgr.load();
     }
 
-    clipLogs.value.push('📡 获取成员信息...');
+    addClipLog('📡 获取成员信息...');
     const mapping = await p48.getMapping();
     if (!mapping['谭思慧']) throw new Error('未找到谭思慧的成员ID');
     const roomMap = await p48.getRoomMap();
     const pocketId = roomMap['谭思慧'];
     if (!pocketId) throw new Error('未找到谭思慧的口袋房间号');
 
-    clipLogs.value.push(`🔍 查找 ${item.broadcastTime} 的录播...`);
+    addClipLog(`🔍 查找 ${item.broadcastTime} 的录播...`);
     const replay = await findReplayByTime(pocketId, item.broadcastTime);
     if (!replay) throw new Error('未找到匹配的录播，请确认直播时间正确');
-    clipLogs.value.push(`✅ 找到录播: ${replay.title || '(无标题)'}`);
+    addClipLog(`✅ 找到录播: ${replay.title || '(无标题)'}`);
 
-    clipLogs.value.push('📥 获取直播流地址...');
+    addClipLog('📥 获取直播流地址...');
     const detail = await p48.getLiveOne(replay.liveId);
     const m3u8Url = detail?.content?.playStreamPath;
     if (!m3u8Url) throw new Error('获取 M3U8 地址失败');
@@ -502,7 +530,7 @@ const handleClipSong = async () => {
     const m3u8Text = await p48.fetchM3U8(m3u8Url);
     const baseUrl = p48.buildBaseUrl(m3u8Url);
     const segments = p48.parseM3U8(m3u8Text, baseUrl);
-    clipLogs.value.push(`✅ 解析到 ${segments.length} 个分片`);
+    addClipLog(`✅ 解析到 ${segments.length} 个分片`);
 
     const startSec = p48.timeToSeconds(item.startTime);
     const endSec = p48.timeToSeconds(item.endTime);
@@ -523,19 +551,95 @@ const handleClipSong = async () => {
       if (currentTime >= paddedEnd) break;
     }
 
-    clipLogs.value.push(`📥 下载 ${neededSegs.length} 个分片...`);
-    const buffers = [];
-    const concurrency = 6;
-    for (let j = 0; j < neededSegs.length; j += concurrency) {
-      const batch = neededSegs.slice(j, j + concurrency);
-      const results = await Promise.all(batch.map(seg => {
-        const url = p48.proxySegment(seg.url);
-        return fetch(url).then(r => r.arrayBuffer());
-      }));
-      for (const data of results) buffers.push(data);
+    addClipLog(`📥 下载 ${neededSegs.length} 个分片 (并发 ${clipConcurrency.value})...`);
+
+    // --- 滑动窗口 Worker Pool，CDN + 直连 两路竞速 ---
+    const pathWins = { CDN: 0, '直连': 0 };
+    const buffers = new Array(neededSegs.length);
+
+    const fetchSeg = async (url, index, total) => {
+      const pad = String(total).length;
+      const prefix = `  [${String(index + 1).padStart(pad, ' ')}/${total}]`;
+      const MAX_RETRIES = 5;
+      const TIMEOUTS = [5000, 5000, 5000, 8000, 10000];
+
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (signal.aborted) throw new DOMException('用户取消', 'AbortError');
+
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), TIMEOUTS[attempt]);
+        const onAbort = () => { ctrl.abort(); clearTimeout(tid); };
+        signal.addEventListener('abort', onAbort, { once: true });
+
+        const SOURCES = [
+          { url: p48.proxyCDN(url), label: 'CDN' },
+          { url, label: '直连' }
+        ];
+        const t0 = performance.now();
+
+        const doFetch = async (fetchUrl, label) => {
+          const resp = await fetch(fetchUrl, { signal: ctrl.signal });
+          if (!resp.ok) {
+            let msg = `HTTP ${resp.status}`;
+            try { const body = await resp.json(); msg += `: ${body.error}`; } catch {}
+            throw new Error(msg);
+          }
+          return { label, data: await resp.arrayBuffer() };
+        };
+
+        try {
+          const result = await Promise.any(SOURCES.map(s => doFetch(s.url, s.label)));
+          const elapsed = (performance.now() - t0).toFixed(0);
+          const retryTag = attempt > 0 ? ` (重试${attempt})` : '';
+          addClipLog(`${prefix} ✅ ${result.label} ${elapsed}ms${retryTag}`);
+          return result;
+        } catch (e) {
+          const msgs = e instanceof AggregateError
+            ? e.errors.map(err => err.message).join('; ')
+            : e.message;
+          if (attempt < MAX_RETRIES - 1) {
+            addClipLog(`${prefix} ⚠️ 失败: ${msgs}，重试 ${attempt + 1}/${MAX_RETRIES - 1}`);
+          } else {
+            addClipLog(`${prefix} ❌ 最终失败: ${msgs}`);
+            throw new Error(msgs);
+          }
+        } finally {
+          clearTimeout(tid);
+          signal.removeEventListener('abort', onAbort);
+          if (!signal.aborted) ctrl.abort();
+        }
+      }
+    };
+
+    let nextIdx = 0;
+    const worker = async () => {
+      while (true) {
+        if (signal.aborted) break;
+        const idx = nextIdx;
+        nextIdx++;
+        if (idx >= neededSegs.length) break;
+        const result = await fetchSeg(neededSegs[idx].url, idx, neededSegs.length);
+        pathWins[result.label]++;
+        buffers[idx] = result.data;
+      }
+    };
+
+    const workerCount = Math.min(clipConcurrency.value, neededSegs.length);
+    const workers = [];
+    for (let w = 0; w < workerCount; w++) {
+      workers.push(worker());
     }
+    await Promise.all(workers);
+
+    if (signal.aborted) throw new DOMException('用户取消', 'AbortError');
+
+    addClipLog(`  📡 CDN:${pathWins.CDN} 直连:${pathWins['直连']}`);
 
     const totalLen = buffers.reduce((a, b) => a + b.byteLength, 0);
+    if (totalLen > 1.4 * 1024 * 1024 * 1024) {
+      throw new Error(`下载数据 ${(totalLen / 1024 / 1024 / 1024).toFixed(1)}GB 超过浏览器 WASM 内存上限 (1.4GB)`);
+    }
+
     const concatData = new Uint8Array(totalLen);
     let off = 0;
     for (const buf of buffers) {
@@ -543,6 +647,9 @@ const handleClipSong = async () => {
       off += buf.byteLength;
     }
     buffers.length = 0;
+
+    if (signal.aborted) throw new DOMException('用户取消', 'AbortError');
+
     await ffmpegMgr.ffmpeg.writeFile('concat.ts', concatData);
 
     const format = clipTargetFormat.value;
@@ -553,7 +660,7 @@ const handleClipSong = async () => {
     const clipDuration = endSec - startSec;
     const baseCmd = ['-ss', String(clipOffset), '-i', 'concat.ts', '-to', String(clipOffset + clipDuration)];
 
-    clipLogs.value.push(`✂️ 剪切: ${item.cleanName} -> ${format.toUpperCase()}`);
+    addClipLog(`✂️ 剪切: ${item.cleanName} -> ${format.toUpperCase()}`);
     const copyable = ['ts', 'mp4', 'mkv', 'avi', 'mov', 'webm', 'm4a'];
 
     if (copyable.includes(format)) {
@@ -564,7 +671,7 @@ const handleClipSong = async () => {
         await ffmpegMgr.ffmpeg.exec(copyCmd);
         await ffmpegMgr.ffmpeg.readFile(outputName);
       } catch {
-        clipLogs.value.push('  ⚠️ copy 失败，回退重编码...');
+        addClipLog('  ⚠️ copy 失败，回退重编码...');
         const encArgs = isAudio ? ['-vn', ...getAudioEncoder(format)] : ['-c:v', 'libx264', '-c:a', 'aac'];
         await ffmpegMgr.ffmpeg.exec([...baseCmd, ...encArgs, outputName]);
       }
@@ -578,14 +685,24 @@ const handleClipSong = async () => {
     await ffmpegMgr.ffmpeg.deleteFile(outputName);
     await ffmpegMgr.ffmpeg.deleteFile('concat.ts');
 
-    clipLogs.value.push('✅ 下载完成！');
+    if (!(await ffmpegMgr.isAlive())) {
+      addClipLog('♻️ FFmpeg 实例已终止，正在重建...');
+      await ffmpegMgr.restart();
+    }
+
+    addClipLog('✅ 下载完成！');
     ElMessage.success(`「${item.cleanName}」剪切完成！`);
   } catch (err) {
-    console.error(err);
-    clipLogs.value.push(`❌ 错误: ${err.message}`);
-    ElMessage.error('剪切失败，请查看日志');
+    if (err.name === 'AbortError') {
+      addClipLog('⏹️ 用户取消剪切');
+    } else {
+      console.error(err);
+      addClipLog(`❌ 错误: ${err.message}`);
+      ElMessage.error('剪切失败，请查看日志');
+    }
   } finally {
     isClipping.value = false;
+    clipAbortController.value = null;
   }
 };
 </script>
@@ -705,7 +822,6 @@ const handleClipSong = async () => {
 /* 没歌的日子 (默认样式其实就是透明，但为了保险可以写一下) */
 /* Element Plus 默认非本月日期是灰色的，这里不需要额外处理 */
 
-/* 一键剪切弹框样式 */
 .clip-info {
   background: #f5f7fa;
   padding: 12px 16px;
@@ -731,13 +847,33 @@ const handleClipSong = async () => {
   font-family: 'Consolas', monospace;
   padding: 12px;
   border-radius: 8px;
-  height: 150px;
+  height: 300px;
   overflow-y: auto;
   font-size: 12px;
   line-height: 1.5;
 }
+
+@media (max-width: 767px) {
+  .log-box {
+    height: 150px;
+  }
+}
 .log-line {
   margin-bottom: 2px;
   word-break: break-all;
+}
+</style>
+
+<style>
+.content-dialog,
+.clip-dialog {
+  border-radius: 12px;
+}
+
+@media (min-width: 768px) {
+  .content-dialog,
+  .clip-dialog {
+    max-width: 640px;
+  }
 }
 </style>

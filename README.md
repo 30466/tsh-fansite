@@ -37,13 +37,27 @@
   - 总选排名：`GET https://abm48.com/api/public/snh48/members/{id}/election-ranks`
 *   **图片预览**: 支持头像等图片的全屏预览查看。
 
+### 4. ✂️ 一键剪切
+
+*   **在线直接剪切**：从直播回放中直接裁剪歌曲片段，无需下载完整录播
+*   **CDN + 直连双路竞速**：每个分片同时从 `/cdn` 代理和直连两路发起请求，
+    `Promise.any` 取最先成功的，失败自动重试
+*   **阶梯重试**：最多重试 5 次，超时逐次递增（5s → 5s → 5s → 8s → 10s），
+    应对网络波动
+*   **滑动窗口 Worker Pool**：并非简单分批，而是所有 Worker 通过原子索引竞争取任务，
+    空闲 Worker 自动接手，最大化利用并发
+*   **并发可调**：支持调节同时下载的分片数（5~30，步进 5），默认 15
+*   **剪切策略**：优先 `-c copy` 快速无损剪切，失败则回退重编码
+*   **FFmpeg 健康自愈**：每次剪切后检查实例状态，异常自动重建
+*   **取消中止**：剪切过程中可随时中止，立即停止所有下载请求
+
 ## 🛠️ 技术栈
 
 *   **核心框架**: Vue 3 + Vite
 *   **UI 组件库**: Element Plus
 *   **后端**: PHP (提供 profile、upload 等 API)
 *   **数据脚本**: Node.js (服务端自动化解析生成 `data.json`)
-*   **工具库**: JSZip (文件打包)
+*   **工具库**: JSZip (文件打包)、@ffmpeg/ffmpeg (浏览器端 FFmpeg)
 
 ## 🚀 快速开始
 
@@ -108,7 +122,7 @@ server {
 
     # 1. 核心：为所有 HTML/JS/CSS 添加跨域隔离头，否则 FFmpeg 无法启动
     add_header Cross-Origin-Opener-Policy same-origin always;
-    add_header Cross-Origin-Embedder-Policy require-corp always;
+    add_header Cross-Origin-Embedder-Policy credentialless always;
 
     # 2. 正确处理 .wasm 文件类型
     location ~ \.wasm$ {
@@ -123,7 +137,25 @@ server {
         include fastcgi_params;
     }
 
-    # 4. 防止 Vue 路由刷新 404
+    # 4. 工具站 API 代理（成员映射、录播列表、M3U8 等）
+    location /tools-api/ {
+        proxy_pass https://tools.abm48.com/;
+        proxy_set_header Host tools.abm48.com;
+        proxy_ssl_server_name on;
+        proxy_cache off;
+    }
+
+    # 5. CDN 代理（一键剪切下载分片用）
+    location /cdn/ {
+        proxy_pass https://idol-vod.48.cn/;
+        proxy_set_header Host idol-vod.48.cn;
+        proxy_set_header Origin https://h5.48.cn;
+        proxy_set_header Referer https://h5.48.cn/;
+        proxy_ssl_server_name on;
+        proxy_cache off;
+    }
+
+    # 6. 防止 Vue 路由刷新 404
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -134,15 +166,21 @@ server {
 
 | 分支 | 说明 |
 | :---: | :--- |
-| **lite** | 当前维护分支，去掉了在线剪辑功能，主打轻量。**以后只更新此分支** |
+| **lite** | 当前维护分支，支持在线一键剪切。**以后只更新此分支** |
 | main | 旧版主分支，包含 Web 端在线剪辑功能（已停止维护） |
 
 ## ✂️ 关于剪辑
 
-本项目已移除 Web 端批量剪辑功能，如需使用剪辑工具：
+本站在歌曲卡片上提供了 **「一键剪切」** 功能：
 
-*   **[在线批量剪辑 (Web版)](https://gitee.com/albert-chen04/tools-site)**: 独立的 Web 剪辑项目，支持切片本导入、批量剪切。
-*   **[桌面版剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit)**: 功能更强大的 Python 桌面版，支持切片本一键导入剪切。
+*   点击按钮即可从直播回放中直接裁剪对应歌曲片段，下载到本地
+*   支持调节并发数、CDN + 直连双路竞速下载、5 次阶梯重试
+*   使用 FFmpeg.wasm 在浏览器端完成剪切，无需服务器处理
+
+如需批量处理（导入切片本、多片段同时剪切），可前往：
+
+*   **[在线批量剪辑 (Web版)](https://tools.abm48.com/clip)**: 独立的批量剪切工具，支持口袋48模式
+*   **[桌面版剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit)**: 功能更强大的 Python 桌面版
 
 ## 🔗 相关项目
 

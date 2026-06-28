@@ -97,6 +97,34 @@ export function timeToSeconds(t) {
   return 0
 }
 
+export function proxyCDN(url) {
+  const idx = url.indexOf('/', url.indexOf('//') + 2)
+  return '/cdn' + url.substring(idx)
+}
+
 export function proxySegment(url) {
   return `${TOOLS_HOST}/proxy/segment?url=${encodeURIComponent(url)}`
+}
+
+export async function fetchSegment(url, signal) {
+  const sources = [
+    { url: `${TOOLS_HOST}/proxy/segment?url=${encodeURIComponent(url)}`, label: '后端' },
+    { url, label: '直连' }
+  ]
+
+  const doFetch = async ({ url: fetchUrl, label }) => {
+    const resp = await fetch(fetchUrl, { signal })
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+    const data = await resp.arrayBuffer()
+    return { label, data }
+  }
+
+  try {
+    return await Promise.any(sources.map(s => doFetch(s)))
+  } catch (e) {
+    const msgs = e instanceof AggregateError
+      ? e.errors.map(err => err.message).join('; ')
+      : e.message
+    throw new Error(msgs)
+  }
 }

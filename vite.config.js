@@ -22,6 +22,15 @@ export default defineConfig({
         target: 'https://tools.abm48.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/tools-api/, '')
+      },
+      '/cdn': {
+        target: 'https://idol-vod.48.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/cdn/, ''),
+        headers: {
+          'Origin': 'https://h5.48.cn',
+          'Referer': 'https://h5.48.cn/'
+        }
       }
     },
     headers: {
