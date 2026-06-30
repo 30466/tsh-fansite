@@ -8,8 +8,8 @@
           <span class="logo">CGT48 谭思慧</span>
           <div class="links">
             <!-- 唱歌 - 下拉菜单 -->
-            <el-dropdown class="tool-dropdown" :show-timeout="100">
-              <span class="el-dropdown-link">
+            <el-dropdown class="tool-dropdown" trigger="hover" :show-timeout="100">
+              <span class="el-dropdown-link" @click="$router.push('/')">
                 唱歌
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
@@ -35,17 +35,17 @@
             </el-dropdown>
 
             <!-- 口袋48 - 下拉菜单 -->
-            <el-dropdown class="tool-dropdown" :show-timeout="100">
-              <span class="el-dropdown-link">
+            <el-dropdown class="tool-dropdown" trigger="hover" :show-timeout="100">
+              <span class="el-dropdown-link" @click="$router.push('/replay')">
                 口袋48
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item>
-                    <a href="https://msg48.org/live/89653513" target="_blank" class="dropdown-item-link">
+                    <router-link to="/replay" class="dropdown-item-link">
                     📺 口袋48录播回放
-                    </a>
+                    </router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>
                     <a href="https://msg48.org" target="_blank" class="dropdown-item-link">
@@ -72,11 +72,12 @@
         </div>
       </nav>
 
-      <div class="main-container">
+      <div class="main-container" :class="{ 'is-replay': $route.path === '/replay' }">
         <router-view />
       </div>
 
       <ElectionBusiness />
+      <AudioPlayer />
     </div>
   </el-config-provider>
 </template>
@@ -85,6 +86,7 @@
 import bgImage from './assets/bg.jpg'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ElectionBusiness from './components/ElectionBusiness.vue'
+import AudioPlayer from './components/AudioPlayer.vue'
 // 2. 引入 Element Plus 中文语言包
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElConfigProvider } from 'element-plus'
@@ -177,6 +179,11 @@ body {
   margin: 30px auto;
   padding: 0 20px;
   min-height: 80vh;
+}
+.main-container.is-replay {
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* 下拉触发文字的样式 (模仿其他链接) */

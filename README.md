@@ -137,7 +137,15 @@ server {
         include fastcgi_params;
     }
 
-    # 4. 工具站 API 代理（成员映射、录播列表、M3U8 等）
+    # 4. 音乐站 API 代理（搜索、音频流、歌曲详情）——如服务器已配置可省略
+    location /api/ {
+        proxy_pass https://abm48.com/api/;
+        proxy_set_header Host abm48.com;
+        proxy_ssl_server_name on;
+        proxy_cache off;
+    }
+
+    # 5. 工具站 API 代理（成员映射、录播列表、M3U8 等）
     location /tools-api/ {
         proxy_pass https://tools.abm48.com/;
         proxy_set_header Host tools.abm48.com;
@@ -145,7 +153,7 @@ server {
         proxy_cache off;
     }
 
-    # 5. CDN 代理（一键剪切下载分片用）
+    # 5. CDN 代理（剪切下载 TS 分片用）
     location /cdn/ {
         proxy_pass https://idol-vod.48.cn/;
         proxy_set_header Host idol-vod.48.cn;
@@ -155,7 +163,16 @@ server {
         proxy_cache off;
     }
 
-    # 6. 防止 Vue 路由刷新 404
+    # 6. source.48.cn 代理（封面图片 / 弹幕文件下载用）
+    location /source48/ {
+        proxy_pass https://source.48.cn/;
+        proxy_set_header Host source.48.cn;
+        proxy_set_header Referer https://live.48.cn/;
+        proxy_ssl_server_name on;
+        proxy_cache off;
+    }
+
+    # 7. 防止 Vue 路由刷新 404
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -171,16 +188,17 @@ server {
 
 ## ✂️ 关于剪辑
 
-本站在歌曲卡片上提供了 **「一键剪切」** 功能：
+本站提供两种剪切方式：
 
+**「一键剪切」**：在歌曲卡片上直接剪切单首歌曲片段
 *   点击按钮即可从直播回放中直接裁剪对应歌曲片段，下载到本地
-*   支持调节并发数、CDN + 直连双路竞速下载、5 次阶梯重试
+*   支持调节并发数、CDN + 后端 + 直连 **三路竞速**下载、5 次阶梯重试
 *   使用 FFmpeg.wasm 在浏览器端完成剪切，无需服务器处理
 
-如需批量处理（导入切片本、多片段同时剪切），可前往：
-
-*   **[在线批量剪辑 (Web版)](https://tools.abm48.com/clip)**: 独立的批量剪切工具，支持口袋48模式
-*   **[桌面版剪辑软件](https://gitee.com/albert-chen04/video-editing-toolkit)**: 功能更强大的 Python 桌面版
+**「批量剪切」**：在录播回放页面导入切片本，批量处理多片段
+*   入口：导航栏 **口袋48 → 录播回放** → 选择录播 → 右侧 Tab "批量剪切"
+*   支持导入 TXT 切片本（`名称:`/`开始:`/`结束:` 格式）
+*   每个片段依次下载分片 → 剪切 → 立即下载，全部在浏览器完成
 
 ## 🔗 相关项目
 
