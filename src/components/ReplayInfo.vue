@@ -23,8 +23,7 @@
       <div class="info-row"><span class="info-label">Live ID</span><span class="info-value">{{ info?.liveId || '-' }}</span></div>
       <div class="info-row"><span class="info-label">类型</span><span class="info-value">{{ typeLabel }}</span></div>
       <div class="info-row"><span class="info-label">时间</span><span class="info-value">{{ formattedTime }}</span></div>
-      <div class="info-row"><span class="info-label">时长(API)</span><span class="info-value">{{ info?.duration || '-' }}</span></div>
-      <div class="info-row" v-if="preciseDuration"><span class="info-label">时长(精确)</span><span class="info-value">{{ preciseDuration }}</span></div>
+      <div class="info-row"><span class="info-label">时长</span><span class="info-value">{{ playerDuration || preciseDuration || info?.duration || '-' }}</span></div>
       <div class="info-row"><span class="info-label">标题</span><span class="info-value">{{ info?.title || '(无标题)' }}</span></div>
       <div class="info-row" v-if="info?.announcement"><span class="info-label">公告</span><span class="info-value announcement-text">{{ info.announcement }}</span></div>
       <div class="info-row"><span class="info-label">成员</span><span class="info-value">{{ memberInfo }}</span></div>
@@ -54,7 +53,8 @@ const props = defineProps({
   m3u8Url: { type: String, default: '' },
   preciseDuration: { type: String, default: '' },
   coverSourceUrl: { type: String, default: '' },
-  danmakuSourceUrl: { type: String, default: '' }
+  danmakuSourceUrl: { type: String, default: '' },
+  playerDuration: { type: String, default: '' }
 })
 
 const showCover = ref(false)

@@ -12,11 +12,13 @@ import danmukuPlugin from 'artplayer-plugin-danmuku'
 
 const props = defineProps({
   m3u8Url: { type: String, required: true },
+  rawM3u8Url: { type: String, default: '' },
   danmakuUrl: { type: String, default: '' },
   coverUrl: { type: String, default: '' }
 })
 
-const emit = defineEmits(['ready', 'danmaku-error'])
+const emit = defineEmits(['ready', 'danmaku-error', 'duration'])
+const playerDuration = ref('')
 
 const containerRef = ref(null)
 const art = shallowRef(null)
@@ -95,7 +97,7 @@ async function fetchWithRetry(url, retries = 3) {
   }
 }
 
-defineExpose({ danmakuData, art, showOverlayDanmaku, hideOverlayDanmaku })
+defineExpose({ danmakuData, art, playerDuration, showOverlayDanmaku, hideOverlayDanmaku })
 
 onMounted(async () => {
   if (!containerRef.value) return
@@ -109,22 +111,49 @@ onMounted(async () => {
       m3u8: function (video, url, artInstance) {
         if (Hls.isSupported()) {
           fetchWithRetry(url).then(text => {
-            const origin = window.location.origin
-            const proxied = text.replace(
+            const cdnOrigin = new URL(props.rawM3u8Url || 'https://idol-vod.48.cn').origin
+            const cdnPath = new URL(props.rawM3u8Url || 'https://idol-vod.48.cn/').pathname
+            const baseDir = cdnPath.substring(0, cdnPath.lastIndexOf('/') + 1)
+            // Rewrite TS segment URLs to direct CDN. TS files have ACAO:*.
+            const rewritten = text.replace(
               /^(?!#)([^\s]+\.ts[^\s]*)$/gm,
               (match) => {
                 if (match.startsWith('http')) {
-                  return origin + '/cdn' + new URL(match).pathname
+                  return cdnOrigin + new URL(match).pathname
                 }
-                return origin + '/cdn' + (match.startsWith('/') ? match : '/' + match)
+                if (match.startsWith('/')) {
+                  return cdnOrigin + match
+                }
+                return cdnOrigin + baseDir + match
               }
             )
-            const blobUrl = URL.createObjectURL(new Blob([proxied], { type: 'application/vnd.apple.mpegurl' }))
+            const blobUrl = URL.createObjectURL(new Blob([rewritten], { type: 'application/vnd.apple.mpegurl' }))
             const hls = new Hls({
+              enableWorker: true,
               maxBufferLength: 60,
               maxMaxBufferLength: 120,
-              startFragPrefetch: true,
-              testBandwidth: false
+              startFragPrefetch: false,
+              testBandwidth: false,
+              fragLoadingTimeOut: 10000,
+              fragLoadingMaxRetry: 3,
+              fragLoadingRetryDelay: 500
+            })
+            hls.on(Hls.Events.ERROR, (event, data) => {
+              if (data.fatal) {
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                  hls.startLoad()
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                  hls.recoverMediaError()
+                }
+              }
+            })
+            hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+              const sec = data.levels?.[0]?.details?.totalduration || 0
+              if (sec > 0) {
+                const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = Math.floor(sec % 60)
+                playerDuration.value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                emit('duration', playerDuration.value)
+              }
             })
             hls.loadSource(blobUrl)
             hls.attachMedia(video)
@@ -141,7 +170,7 @@ onMounted(async () => {
         danmuku: [],
         speed: 144,
         opacity: 1,
-        fontSize: 24,
+        fontSize: window.innerWidth <= 768 ? 16 : 24,
         margin: [10, 30],
         heatmap: false,
         emitter: false
@@ -155,7 +184,7 @@ onMounted(async () => {
     setting: true,
     hotkey: true,
     autoSize: true,
-    autoMini: false,
+    autoMini: true,
     loop: false,
     fullscreen: true,
     fullscreenWeb: true,
@@ -193,6 +222,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Apd = ArtPlayer Danmuku */
 .replay-player {
   width: 100%;
   flex: 1;

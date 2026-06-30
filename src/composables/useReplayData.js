@@ -13,6 +13,7 @@ const replaysByDate = ref({})
 
 let nextPage = '0'
 let pocketIdCache = null
+const seenIds = new Set()
 
 function getReplayDate(ctimeMs) {
   const d = new Date(Number(ctimeMs))
@@ -21,14 +22,19 @@ function getReplayDate(ctimeMs) {
 }
 
 function addReplays(liveList) {
+  let added = 0
   for (const r of liveList) {
+    if (seenIds.has(r.liveId)) continue
+    seenIds.add(r.liveId)
     const dateKey = getReplayDate(r.ctime)
     if (!replaysByDate.value[dateKey]) {
       replaysByDate.value[dateKey] = []
     }
     replaysByDate.value[dateKey].push(r)
-    totalCount.value++
+    added++
   }
+  totalCount.value += added
+  return added
 }
 
 async function quickLoad() {
@@ -66,21 +72,39 @@ async function loadAll() {
   loadingFull.value = true
 
   try {
-    let next = nextPage
-    let pageCount = 1
-    while (next) {
-      const data = await p48.getLiveList(Number(pocketIdCache), next)
-      if (data?.content?.liveList?.length) {
-        addReplays(data.content.liveList)
-        next = data.content.next
-        pageCount++
-      } else {
-        break
+    if (loadedAll.value) {
+      // Re-scan from beginning, only add new records
+      let next = '0'
+      let newCount = 0
+      while (next) {
+        const data = await p48.getLiveList(Number(pocketIdCache), next)
+        if (data?.content?.liveList?.length) {
+          const added = addReplays(data.content.liveList)
+          newCount += added
+          next = data.content.next
+        } else {
+          break
+        }
       }
+      if (newCount > 0) {
+        ElMessage.success(`新增 ${newCount} 条，共 ${totalCount.value} 条录播记录`)
+      } else {
+        ElMessage.info(`没有新的录播记录，共 ${totalCount.value} 条`)
+      }
+    } else {
+      let next = nextPage
+      while (next) {
+        const data = await p48.getLiveList(Number(pocketIdCache), next)
+        if (data?.content?.liveList?.length) {
+          addReplays(data.content.liveList)
+          next = data.content.next
+        } else {
+          break
+        }
+      }
+      loadedAll.value = true
+      ElMessage.success(`加载完成，共 ${totalCount.value} 条录播记录`)
     }
-
-    loadedAll.value = true
-    ElMessage.success(`加载完成，共 ${totalCount.value} 条录播记录`)
   } catch (err) {
     ElMessage.error('加载录播列表失败: ' + err.message)
   } finally {

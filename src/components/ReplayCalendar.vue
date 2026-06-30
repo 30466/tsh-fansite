@@ -37,7 +37,7 @@
         </template>
 
         <template #date-cell="{ data }">
-          <div class="calendar-cell" @click="onDateClick(data.day)">
+          <div class="calendar-cell" :class="{ 'other-month': !isCurrentMonth(data.day) }" @click="onDateClick(data.day)">
             <span v-if="hasReplay(data.day)" class="replay-badge">{{ data.day.split('-').pop() }}</span>
             <span v-else>{{ data.day.split('-').pop() }}</span>
           </div>
@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { CircleCheck } from '@element-plus/icons-vue'
 import { useReplayData } from '@/composables/useReplayData'
@@ -134,6 +134,11 @@ const monthList = computed(() => {
   for (let m = start; m <= end; m++) months.push(m)
   return months
 })
+
+function isCurrentMonth(dayStr) {
+  const parts = dayStr.split('-')
+  return parseInt(parts[1]) === selectedMonth.value && parseInt(parts[0]) === selectedYear.value
+}
 
 function hasReplay(dayStr) {
   return !!replaysByDate.value[dayStr]
@@ -189,6 +194,11 @@ function onYearMonthChange() {
   }
   calendarDate.value = new Date(selectedYear.value, selectedMonth.value - 1, 1)
 }
+
+watch(calendarDate, (d) => {
+  selectedYear.value = d.getFullYear()
+  selectedMonth.value = d.getMonth() + 1
+})
 
 function loadAllReplays() {
   loadAll()
@@ -275,6 +285,12 @@ onMounted(() => {
 .replay-badge:hover {
   background: #337ecc;
 }
+.calendar-cell.other-month {
+  color: #999;
+}
+.calendar-cell.other-month .replay-badge {
+  color: #999;
+}
 .date-hint {
   text-align: center;
   color: #fff;
@@ -338,5 +354,95 @@ onMounted(() => {
 .replay-duration {
   color: #606266;
   font-size: 12px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .replay-calendar {
+    max-width: 100%;
+    padding: 0 4px 40px;
+  }
+
+  .calendar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .calendar-header h2 {
+    font-size: 16px;
+  }
+
+  .header-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .header-actions .el-button {
+    font-size: 13px;
+  }
+
+  .calendar-custom-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .calendar-custom-header .el-select {
+    flex: 1 1 45%;
+    min-width: 90px;
+    margin-left: 0 !important;
+  }
+
+  .month-nav {
+    flex-basis: 100%;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .month-nav .el-button {
+    flex: 1;
+    font-size: 12px;
+    padding: 5px 6px;
+    white-space: nowrap;
+  }
+
+  .calendar-cell {
+    font-size: 12px;
+    padding: 2px;
+  }
+
+  .replay-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .replay-list-section {
+    margin-top: 12px;
+  }
+
+  .replay-list-title {
+    font-size: 13px;
+  }
+
+  .replay-item {
+    padding: 8px 10px;
+  }
+
+  .replay-info {
+    gap: 6px;
+  }
+
+  .replay-time {
+    font-size: 12px;
+  }
+
+  .replay-title {
+    max-width: 120px;
+    font-size: 13px;
+  }
 }
 </style>

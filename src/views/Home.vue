@@ -144,9 +144,9 @@
 
         <template #date-cell="{ data }">
           <!-- 自定义单元格内容 (保持之前的逻辑不变) -->
-          <div 
-            class="custom-cell" 
-            :class="{ 'is-singing-day': hasSong(data.day) }"
+          <div
+            class="custom-cell"
+            :class="{ 'is-singing-day': hasSong(data.day), 'other-month': !isCurrentMonth(data.day) }"
             @click.stop="handleCalendarClick(data.day)"
           >
             <div class="cell-date">
@@ -452,7 +452,13 @@ const dateGroups = computed(() => {
 
 // --- 日历相关的逻辑 ---
 
-// 1. 判断某天是否有歌
+// 1. 判断日期是否在当前月
+const isCurrentMonth = (dayStr) => {
+  const parts = dayStr.split('-')
+  return parseInt(parts[1]) === selectedMonth.value && parseInt(parts[0]) === selectedYear.value
+}
+
+// 2. 判断某天是否有歌
 const hasSong = (dayStr) => {
   return !!dateGroups.value[dayStr];
 };
@@ -474,7 +480,7 @@ const handleCalendarClick = (dayStr) => {
 };
 
 const selectDate = (date) => {
-  searchText.value = date; 
+  searchText.value = date.replace(/-/g, '');
   viewMode.value = 'songs'; // 切回列表模式
   window.scrollTo({ top: 0, behavior: 'smooth' });
   ElMessage.success(`已定位到 ${date} 的记录`);
@@ -852,6 +858,41 @@ const handleClipSong = async () => {
   gap: 8px;
   margin-left: auto;
 }
+
+@media (max-width: 768px) {
+  .calendar-custom-header {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .calendar-custom-header .el-select {
+    flex: 1 1 45%;
+    min-width: 90px;
+    margin-left: 0 !important;
+  }
+  .calendar-custom-header .month-nav {
+    flex-basis: 100%;
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+  .calendar-custom-header .month-nav .el-button {
+    flex: 1;
+    font-size: 12px;
+    padding: 5px 6px;
+    white-space: nowrap;
+  }
+  .custom-cell {
+    padding: 4px;
+  }
+  .cell-date {
+    font-size: 12px;
+  }
+  .cell-content span {
+    font-size: 10px;
+  }
+}
+
 .calendar-wrapper {
   background: rgba(255, 255, 255, 0.9);
   padding: 10px;
@@ -888,7 +929,14 @@ const handleClipSong = async () => {
 }
 
 .is-singing-day:hover {
-  background-color: #d9ecff; /* 悬浮加深 */
+  background-color: #d9ecff;
+}
+
+.custom-cell.other-month {
+  color: #999;
+}
+.custom-cell.other-month.is-singing-day {
+  color: #409EFF;
 }
 
 .cell-content {

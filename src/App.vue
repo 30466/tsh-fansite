@@ -1,7 +1,7 @@
 <template>
   <!-- 1. 包裹 ElConfigProvider 并绑定中文包 -->
   <el-config-provider :locale="zhCn">
-    <div class="app-wrapper" :style="{ backgroundImage: `url(${bgImage})` }">
+    <div class="app-wrapper" :class="{ 'is-player-mode': isPlayerMode }" :style="{ backgroundImage: `url(${bgImage})` }">
       <nav class="nav-bar">
         <!-- ... 导航栏代码保持不变 ... -->
         <div class="nav-content">
@@ -84,12 +84,16 @@
 
 <script setup>
 import bgImage from './assets/bg.jpg'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { ArrowDown } from '@element-plus/icons-vue'
 import ElectionBusiness from './components/ElectionBusiness.vue'
 import AudioPlayer from './components/AudioPlayer.vue'
-// 2. 引入 Element Plus 中文语言包
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElConfigProvider } from 'element-plus'
+
+const route = useRoute()
+const isPlayerMode = computed(() => route.path === '/replay' && !!route.query.live)
 </script>
 
 <style>
@@ -194,7 +198,17 @@ body {
   font-size: 16px;
   display: flex;
   align-items: center;
-  outline: none; /* 去掉点击时的蓝框 */
+  outline: none;
+}
+
+</style>
+
+<style>
+/* ── Mobile: hide nav + election float in player mode only ── */
+@media (max-width: 768px) {
+  .is-player-mode .nav-bar { display: none; }
+  .is-player-mode .election-business-wrapper { display: none; }
+  .is-player-mode .main-container { margin-top: 10px; }
 }
 
 /* 鼠标悬停变蓝 */

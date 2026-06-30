@@ -13,9 +13,11 @@
             :key="currentReplay?.liveId"
             ref="playerRef"
             :m3u8-url="replayDetail?.proxiedM3U8 || ''"
+            :raw-m3u8-url="replayDetail?.m3u8Url || ''"
             :danmaku-url="replayDetail?.danmakuUrl || ''"
             :cover-url="replayDetail?.coverUrl || ''"
             @ready="onPlayerReady"
+            @duration="onPlayerDuration"
             @danmaku-error="onDanmakuError"
           />
           <div class="player-overlay-top">
@@ -23,7 +25,7 @@
               <el-icon><ArrowLeft /></el-icon> 返回日历
             </el-button>
             <span class="overlay-title">
-              谭思慧 · {{ fmtDate(currentReplay.ctime) }} · {{ liveTypeLabel }} · {{ currentReplay.duration || '--' }}
+              谭思慧 · {{ fmtDate(currentReplay.ctime) }} · {{ liveTypeLabel }} · {{ measuredDuration || currentReplay.duration || '--' }}
             </span>
           </div>
           <div class="player-expand-btn" @click="showPanel = !showPanel">
@@ -31,16 +33,16 @@
           </div>
         </div>
 
-        <div class="panel-area" v-if="showPanel">
+        <div class="panel-area" v-show="panelVisible">
           <div class="panel-header">
             <el-tabs v-model="activeTab">
               <el-tab-pane label="录播信息" name="info" />
               <el-tab-pane label="批量剪切" name="clip" />
-              <el-tab-pane label="弹幕跟随" name="danmaku" />
+              <el-tab-pane v-if="!isMobile" label="弹幕跟随" name="danmaku" />
             </el-tabs>
           </div>
           <div class="panel-body">
-            <ReplayInfo v-show="activeTab==='info'" :info="replayDetail?.info" :cover-url="replayDetail?.coverUrl||''" :danmaku-url="replayDetail?.danmakuUrl||''" :m3u8-url="replayDetail?.m3u8Url||''" :cover-source-url="replayDetail?.coverSourceUrl||''" :danmaku-source-url="replayDetail?.danmakuSourceUrl||''" />
+            <ReplayInfo v-show="activeTab==='info'" :info="replayDetail?.info" :cover-url="replayDetail?.coverUrl||''" :danmaku-url="replayDetail?.danmakuUrl||''" :m3u8-url="replayDetail?.m3u8Url||''" :cover-source-url="replayDetail?.coverSourceUrl||''" :danmaku-source-url="replayDetail?.danmakuSourceUrl||''" :player-duration="measuredDuration" />
             <P48ClipPanel v-show="activeTab==='clip'" :m3u8-url="replayDetail?.m3u8Url||''" member="谭思慧" :broadcast-time="formattedBroadcastTime" />
             <DanmakuTimeline v-show="activeTab==='danmaku'" :danmaku-data="playerDanmaku" :current-time="playerTime" @seek="onDanmakuSeek" />
           </div>
@@ -73,7 +75,9 @@ const currentReplay = ref(null)
 const replayDetail = ref(null)
 const activeTab = ref('info')
 const formattedBroadcastTime = ref('')
+const isMobile = ref(window.innerWidth <= 768)
 const showPanel = ref(true)
+const panelVisible = computed(() => showPanel.value || isMobile.value)
 
 const liveTypeLabel = computed(() => {
   const t = currentReplay.value?.liveType
@@ -83,6 +87,9 @@ const liveTypeLabel = computed(() => {
 const playerRef = ref(null)
 const playerDanmaku = ref([])
 const playerTime = ref(0)
+const measuredDuration = ref('')
+
+function onPlayerDuration(dur) { measuredDuration.value = dur }
 let timeTimer = null
 
 function saveState() {
@@ -252,12 +259,18 @@ async function autoLoadFromURL() {
 onMounted(() => {
   if (route.query.live) autoLoadFromURL()
   document.addEventListener('visibilitychange', onVisibilityChange)
+  window.addEventListener('resize', onResize)
 })
 
 onBeforeUnmount(() => {
   clearInterval(timeTimer)
   document.removeEventListener('visibilitychange', onVisibilityChange)
+  window.removeEventListener('resize', onResize)
 })
+
+function onResize() {
+  isMobile.value = window.innerWidth <= 768
+}
 </script>
 
 <style scoped>
@@ -348,4 +361,51 @@ onBeforeUnmount(() => {
 :deep(.el-tabs__item) { flex: 1; justify-content: center; color: #ccc; }
 :deep(.el-tabs__item.is-active) { color: #409eff; }
 :deep(.el-tabs__nav-wrap::after) { background: rgba(255,255,255,0.1); }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .split-mode .split-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .player-area {
+    flex: none;
+    width: 100%;
+    height: 70vh;
+    overflow: hidden;
+  }
+
+  .player-area .replay-player {
+    min-height: 0 !important;
+  }
+
+  .panel-area {
+    width: 100%;
+    flex: 1;
+  }
+
+  .player-expand-btn {
+    display: none;
+  }
+
+  .panel-header {
+    padding-left: 8px;
+  }
+
+  .panel-body {
+    padding: 8px 8px 0;
+  }
+
+  .player-overlay-top {
+    top: 6px;
+    left: 8px;
+    gap: 6px;
+  }
+
+  .player-overlay-top .overlay-title {
+    font-size: 12px;
+  }
+}
 </style>
