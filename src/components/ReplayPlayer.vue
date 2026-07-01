@@ -184,7 +184,7 @@ onMounted(async () => {
     setting: true,
     hotkey: true,
     autoSize: true,
-    autoMini: true,
+    autoMini: window.innerWidth > 768,
     loop: false,
     fullscreen: true,
     fullscreenWeb: true,
@@ -205,6 +205,13 @@ onMounted(async () => {
 
   art.value.on('ready', () => {
     playerReady = true
+
+    if (window.innerWidth <= 768) {
+      ['fullscreenWeb', 'volume', 'setting', 'pip', 'screenshot', 'playbackRate', 'aspectRatio', 'airplay', 'flip'].forEach(name => {
+        try { art.value.controls.remove(name) } catch {}
+      })
+    }
+
     showOverlayDanmaku()
     emit('ready')
   })
