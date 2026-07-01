@@ -14,10 +14,6 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/profile.php': {
-        target: 'http://localhost:8000',
-        changeOrigin: true
-      },
       '/pocketapi': {
         target: 'https://pocketapi.48.cn',
         changeOrigin: true,
