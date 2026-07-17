@@ -9,7 +9,7 @@
           <div class="links">
             <!-- 唱歌 - 下拉菜单 -->
             <el-dropdown class="tool-dropdown" trigger="hover" :show-timeout="100">
-              <span class="el-dropdown-link" @click="$router.push('/')">
+              <span class="el-dropdown-link">
                 唱歌
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
@@ -31,7 +31,7 @@
 
             <!-- 口袋48 - 下拉菜单 -->
             <el-dropdown class="tool-dropdown" trigger="hover" :show-timeout="100">
-              <span class="el-dropdown-link" @click="$router.push('/replay')">
+              <span class="el-dropdown-link">
                 口袋48
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
@@ -40,6 +40,11 @@
                   <el-dropdown-item>
                     <router-link to="/replay" class="dropdown-item-link">
                     📺 口袋48录播回放
+                    </router-link>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <router-link to="/videoclip" class="dropdown-item-link">
+                    🎬 视频切片记录
                     </router-link>
                   </el-dropdown-item>
                   <el-dropdown-item>

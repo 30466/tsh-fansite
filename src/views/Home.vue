@@ -55,13 +55,23 @@
     <!-- 模式 A: 切片列表 -->
     <div v-show="viewMode === 'songs'">
       <div class="search-section">
-        <el-input
+        <el-autocomplete
           v-model="searchText"
+          :fetch-suggestions="searchSuggestions"
           placeholder="输入歌名 或 日期 (例如: 20251123)..."
           size="large"
-          prefix-icon="Search"
           clearable
-        />
+          :trigger-on-focus="false"
+          style="width: 100%"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+          <template #default="{ item }">
+            <span v-if="item.type === 'date'">📅 {{ item.value }}</span>
+            <span v-else>🎵 {{ item.value }}</span>
+          </template>
+        </el-autocomplete>
       </div>
 
       <div class="song-list" v-loading="loading">
@@ -253,6 +263,7 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import JSZip from 'jszip'; 
 import { ElMessage } from 'element-plus';
 import { Scissor } from '@element-plus/icons-vue';
+import { Search } from '@element-plus/icons-vue';
 import * as p48 from '@/api/pocket48';
 import { FFmpegManager } from '@/composables/useFFmpeg';
 import audioPlayer from '@/composables/useAudioPlayer';
@@ -464,6 +475,39 @@ const filteredList = computed(() => {
            dateNoDash.includes(queryNoDash);
   });
 });
+
+// 搜索自动补全
+const searchSuggestions = (query, cb) => {
+  if (!query || query.length < 1) { cb([]); return; }
+  const q = query.toLowerCase().trim();
+  const qNoDash = q.replace(/-/g, '');
+
+  // 日期匹配
+  const dateSet = new Set();
+  const dateResults = [];
+  for (const s of allSongs.value) {
+    if (!s.date) continue;
+    const d = s.date;
+    const dNoDash = d.replace(/-/g, '');
+    if ((d.includes(q) || dNoDash.includes(qNoDash)) && !dateSet.has(d)) {
+      dateSet.add(d);
+      dateResults.push({ value: dNoDash, type: 'date' });
+    }
+  }
+
+  // 歌名匹配
+  const nameSet = new Set();
+  const nameResults = [];
+  for (const s of allSongs.value) {
+    const n = s.cleanName;
+    if (n.toLowerCase().includes(q) && !nameSet.has(n)) {
+      nameSet.add(n);
+      nameResults.push({ value: n, type: 'song' });
+    }
+  }
+
+  cb([...dateResults, ...nameResults]);
+};
 
 const fileCount = computed(() => {
   const files = new Set(filteredList.value.map(item => item.filename));

@@ -33,6 +33,11 @@ const router = createRouter({
       path: '/bilibili',
       name: 'bilibili',
       component: () => import('../views/Bilibili.vue')
+    },
+    {
+      path: '/videoclip',
+      name: 'videoclip',
+      component: () => import('../views/VideoClip.vue')
     }
   ]
 })
