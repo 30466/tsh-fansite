@@ -43,7 +43,7 @@
           </div>
           <div class="panel-body">
             <ReplayInfo v-show="activeTab==='info'" :info="replayDetail?.info" :cover-url="replayDetail?.coverUrl||''" :danmaku-url="replayDetail?.danmakuUrl||''" :m3u8-url="replayDetail?.m3u8Url||''" :cover-source-url="replayDetail?.coverSourceUrl||''" :danmaku-source-url="replayDetail?.danmakuSourceUrl||''" :player-duration="measuredDuration" />
-            <P48ClipPanel v-show="activeTab==='clip'" :m3u8-url="replayDetail?.m3u8Url||''" member="谭思慧" :broadcast-time="formattedBroadcastTime" />
+            <P48ClipPanel v-show="activeTab==='clip'" :m3u8-url="replayDetail?.m3u8Url||''" member="谭思慧" :broadcast-time="formattedBroadcastTime" :danmaku-url="replayDetail?.danmakuUrl||''" />
             <DanmakuTimeline v-show="activeTab==='danmaku'" :danmaku-data="playerDanmaku" :current-time="playerTime" @seek="onDanmakuSeek" />
           </div>
         </div>

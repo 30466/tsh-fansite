@@ -43,7 +43,7 @@ function parseDateFromFilename($filename) {
     ];
 }
 
-// 从所有 txt 文件生成 data.json
+// 从所有 txt 文件生成 songs.json
 function regenerateSongsJson($sourceDir, $outputFile) {
     if (!is_dir($sourceDir)) return 0;
 
@@ -86,7 +86,7 @@ function regenerateSongsJson($sourceDir, $outputFile) {
 $env = loadEnv(__DIR__ . '/.env');
 $ACCESS_PASSWORD = isset($env['UPLOAD_PASSWORD']) ? $env['UPLOAD_PASSWORD'] : '';
 $TARGET_DIR = __DIR__ . '/scripts/txt_source/';
-$SONGS_FILE = __DIR__ . '/data.json';
+$SONGS_FILE = __DIR__ . '/public/data/songs.json';
 $VIDEOCLIP_FILE = __DIR__ . '/public/data/videoclips.json';
 
 // ═══════════════════════════
