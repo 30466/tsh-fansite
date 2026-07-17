@@ -25,11 +25,6 @@
                     🎤 小偶像音乐网站(abm48)
                     </a>
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a href="https://tools.abm48.com/clip" target="_blank" class="dropdown-item-link">
-                    ✂️ 批量剪切（可导入切片本剪切）
-                    </a>
-                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -52,14 +47,12 @@
                     🗂️ 口袋48历史记录搜索
                     </a>
                   </el-dropdown-item>
-                  <el-dropdown-item>
-                    <a href="https://github.com/duan602728596/48tools/releases" target="_blank" class="dropdown-item-link">
-                    💾 48tools
-                    </a>
-                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
+            <!-- B站安利 -->
+            <router-link to="/bilibili">B站安利</router-link>
+
             <!-- 简介 -->
             <router-link to="/profile">简介</router-link>
 
@@ -143,7 +136,7 @@ body {
 .links {
   display: flex;
   gap: 30px; /* 间距拉大 */
-  align-items: center;
+  align-items: baseline;
 }
 
 /* --- 核心修改：模仿你个人网站的导航链接样式 --- */
@@ -152,30 +145,14 @@ body {
   color: #303133; /* 深灰色，显专业 */
   font-weight: 600; /* 加粗 */
   font-size: 16px;
-  position: relative;
-  padding-bottom: 5px;
+  line-height: 1.4;
   transition: color 0.3s;
 }
 
 /* 鼠标悬停变蓝 */
 .links a:hover, .links a.router-link-active { 
-  color: #409EFF; /* 经典的 Element Plus 蓝 */
-}
-
-/* 简单的底部蓝色条效果（可选） */
-.links a::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 50%;
-  background-color: #409EFF;
-  transition: all 0.3s;
-}
-.links a:hover::after {
-  width: 100%;
-  left: 0;
+  color: #409EFF;
+  border-bottom: 2px solid #409EFF;
 }
 
 .main-container {
@@ -196,7 +173,8 @@ body {
   color: #303133;
   font-weight: 600;
   font-size: 16px;
-  display: flex;
+  line-height: 1.4;
+  display: inline-flex;
   align-items: center;
   outline: none;
 }

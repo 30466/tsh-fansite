@@ -28,6 +28,11 @@ const router = createRouter({
       path: '/upload',
       name: 'upload',
       component: () => import('../views/Upload.vue')
+    },
+    {
+      path: '/bilibili',
+      name: 'bilibili',
+      component: () => import('../views/Bilibili.vue')
     }
   ]
 })
