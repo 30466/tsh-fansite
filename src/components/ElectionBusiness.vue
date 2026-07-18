@@ -269,4 +269,12 @@ function openFullscreen(index) {
   max-height: 90vh;
   object-fit: contain;
 }
+
+/* 弹窗标题居中加粗 */
+:deep(.el-dialog__header) {
+  text-align: center;
+}
+:deep(.el-dialog__title) {
+  font-weight: 700;
+}
 </style>
