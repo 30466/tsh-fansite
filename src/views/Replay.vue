@@ -257,6 +257,7 @@ async function autoLoadFromURL() {
 }
 
 onMounted(() => {
+  document.title = '谭思慧 ✽ 口袋48录播回放'
   if (route.query.live) autoLoadFromURL()
   document.addEventListener('visibilitychange', onVisibilityChange)
   window.addEventListener('resize', onResize)

@@ -234,6 +234,7 @@ function scrollToTop() {
 
 // ── 加载数据 ──
 onMounted(async () => {
+  document.title = '谭思慧 ✽ B站安利'
   try {
     const res = await fetch('/data/bilibili-merged.json')
     const data = await res.json()

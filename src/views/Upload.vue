@@ -166,7 +166,7 @@ import { ElMessage } from 'element-plus';
 import ReplayPicker from '@/components/ReplayPicker.vue';
 
 onMounted(() => {
-  document.title = '谭思慧 ✽ 上传切片本';
+  document.title = '谭思慧 ✽ 上传';
 });
 
 // 这里的 URL 是刚才创建的 php 文件，因为在同一个域名下，用相对路径即可
