@@ -208,9 +208,9 @@ const sortAsc = ref(false)      // 默认降序
 
 // ── 快速检索标签 ──
 const quickTags = [
-  'focus', '直拍','舞台','直播', 'minilive', '唱歌',
-  '公演', 'cut', '合集', '生日', '路演', 
-  '生日公演', 'MVP', 'Party Time','花絮', '采访', 'vlog'
+  'focus', '直拍','舞台','直播', 'minilive', 
+  '公演','幻镜','未命名新途' , 'ALL FOR CII','终极任务','遗忘的国度', '赫兹共振','男装','黎明之后','cut', '合集', '路演', 
+  '生日公演', 'MVP', 'Party Time','唱歌',
 ]
 
 // ── 分页 ──
