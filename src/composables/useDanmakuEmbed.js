@@ -80,10 +80,13 @@ function stripEmoji(s) {
 
 function buildDrawtextChain(danmakuList, clipStartSec, clipEndSec, options = {}) {
   const { videoWidth = 1280, videoHeight = 720, fontSize = 30,
-          scrollDuration = 6, maxCount = 50 } = options
+          scrollSpeed = 250, maxCount = 50 } = options
+
+  const maxTextWidthEst = 500
+  const maxScrollTime = (videoWidth + maxTextWidthEst + 40) / scrollSpeed
 
   const relevant = danmakuList.filter(dm =>
-    dm.time >= clipStartSec - scrollDuration && dm.time <= clipEndSec
+    dm.time >= clipStartSec - maxScrollTime && dm.time <= clipEndSec
   )
   if (relevant.length === 0) return null
 
@@ -96,10 +99,12 @@ function buildDrawtextChain(danmakuList, clipStartSec, clipEndSec, options = {})
 
   for (let i = 0; i < selected.length; i++) {
     const dm = selected[i]
+    const rawText = stripEmoji(dm.user ? `${dm.user} : ${dm.text}` : dm.text)
+    const textWidth = Math.round(rawText.length * fontSize * 0.5)
+    const scrollDist = videoWidth + textWidth + 40
+    const duration = scrollDist / scrollSpeed
     const virtualStart = dm.time - clipStartSec
     const visStart = Math.max(0, virtualStart)
-    const visEnd = virtualStart + scrollDuration
-    if (visEnd <= 0) continue
 
     let row = -1
     for (let r = 0; r < rows; r++) {
@@ -109,29 +114,19 @@ function buildDrawtextChain(danmakuList, clipStartSec, clipEndSec, options = {})
 
     const y = row * rowHeight + fontSize + 10
     const actualStart = Math.max(visStart, laneBusyUntil[row])
-    const actualEnd = Math.max(actualStart + scrollDuration, laneBusyUntil[row] + 0.1)
-    laneBusyUntil[row] = actualEnd
+    const actualEnd = actualStart + duration
+    laneBusyUntil[row] = actualEnd + 0.1
 
-    const color = DANMAKU_COLOR
-    const rawText = stripEmoji(dm.user ? `${dm.user} : ${dm.text}` : dm.text)
-
-    // 写入独立文本文件——彻底避开 : 转义问题
     const fn = `dm_${i}.txt`
     textFiles.push({ filename: fn, content: rawText })
 
-    const textWidthEst = rawText.length * fontSize * 0.5
-    const pixPerSec = (videoWidth + textWidthEst + 40) / scrollDuration
-    const xExpr = `w-mod((t-${virtualStart})*${pixPerSec}\\,w+${Math.round(textWidthEst)}+40)`
+    const xExpr = `w-(t-${actualStart})*${scrollSpeed}`
 
     parts.push(
-      `drawtext=fontfile=font.ttf` +
-      `:textfile=${fn}` +
-      `:fontsize=${fontSize}` +
-      `:fontcolor=${color}` +
-      `:x=${xExpr}` +
-      `:y=${y}` +
-      `:borderw=1` +
-      `:bordercolor=black@0.6` +
+      `drawtext=fontfile=font.ttf:textfile=${fn}` +
+      `:fontsize=${fontSize}:fontcolor=${DANMAKU_COLOR}` +
+      `:x=${xExpr}:y=${y}` +
+      `:borderw=1:bordercolor=black@0.6` +
       `:enable=between(t\\,${actualStart}\\,${actualEnd})`
     )
   }
@@ -173,7 +168,7 @@ export function useDanmakuEmbed() {
     }
 
     const filterArgs = ['-vf', result.chain]
-    const videoCodecArgs = ['-c:v', 'libx264', '-preset', 'ultrafast']
+    const videoCodecArgs = ['-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '18']
     const audioCodecArgs = ['-c:a', 'aac']
 
     const cleanup = async () => {

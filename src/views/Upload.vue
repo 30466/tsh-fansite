@@ -3,7 +3,7 @@
     <el-card class="upload-card">
       <template #header>
         <div class="card-header">
-          <span class="header-title">☁️ 切片本上传后台</span>
+          <span class="header-title">📄 唱歌切片本上传</span>
           <router-link to="/">
             <el-button link>返回首页</el-button>
           </router-link>
@@ -11,7 +11,12 @@
       </template>
 
       <!-- ═══════ 唱歌切片本上传 ═══════ -->
-      <div class="section-header">📄 唱歌切片本上传</div>
+
+      <div class="desc-block">
+        <p>📌 <b>命名规则</b>：以录播时间命名的 <code>.txt</code> 文件，例如 <code>2026-03-10~00.39.31.txt</code></p>
+        <p>📌 <b>格式要求</b>：严格按照唱歌记录切片本的格式，可在本站「口袋48录播回放」→「批量剪切」中剪切获取</p>
+        <p>📌 <b>管理员密码</b>：请在<b>关于页</b>联系我</p>
+      </div>
 
       <!-- 1. 密码验证区 -->
       <div class="section">
@@ -342,6 +347,27 @@ const submitVideoClip = async () => {
 
 .section {
   margin-bottom: 20px;
+}
+
+.desc-block {
+  background: #f5f7fa;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #606266;
+}
+
+.desc-block p {
+  margin: 0;
+}
+
+.desc-block code {
+  background: #e9ecef;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 13px;
 }
 
 .label {

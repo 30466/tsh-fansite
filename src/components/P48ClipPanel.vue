@@ -42,8 +42,8 @@
         <span class="label">格式:</span>
         <el-select v-model="targetFormat" style="width: 100px" size="small">
           <template v-if="outputCategory === 'video'">
+            <el-option label="MP4 (默认)" value="mp4" />
             <el-option label="TS" value="ts" />
-            <el-option label="MP4" value="mp4" />
             <el-option label="MKV" value="mkv" />
             <el-option label="AVI" value="avi" />
             <el-option label="MOV" value="mov" />
@@ -117,7 +117,7 @@ const emit = defineEmits(['ffmpeg-needed'])
 const clipList = ref([])
 const txtInputRef = ref(null)
 const outputCategory = ref('video')
-const targetFormat = ref('ts')
+const targetFormat = ref('mp4')
 const concurrency = ref(10)
 const isProcessing = ref(false)
 const progress = ref(0)
@@ -150,7 +150,7 @@ async function loadFFmpegCore() {
 }
 
 watch(outputCategory, (cat) => {
-  targetFormat.value = cat === 'video' ? 'ts' : 'm4a'
+  targetFormat.value = cat === 'video' ? 'mp4' : 'm4a'
 })
 
 function addLog(msg) {

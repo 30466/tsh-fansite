@@ -16,8 +16,9 @@
         </div>
       </template>
       <div class="notice-content">
-        <p>这里记录非唱歌类的视频切片（如重大发表、有趣片段等），支持一键剪切视频</p>
+        <p>这里记录<b>非唱歌类</b>的视频切片（如<b>重大发表</b>、<b>有趣片段</b>等），支持一键剪切视频</p>
         <p>本站日期以<b>第二天凌晨 06:00</b>为界，归档为前一天。支持<b>标题</b>和<b>日期</b>搜索</p>
+        <p>如果剪切时日志出现 <b>HTTP 478</b> 失败，则是口袋48录播源文件损坏，非网络或本网站问题</p>
       </div>
     </el-card>
 
@@ -82,8 +83,8 @@
         <div class="setting-item">
           <span class="label">格式：</span>
           <el-select v-model="clipTargetFormat" style="width: 140px" size="large">
-            <el-option label="TS (默认)" value="ts" />
-            <el-option label="MP4" value="mp4" />
+            <el-option label="MP4 (默认)" value="mp4" />
+            <el-option label="TS" value="ts" />
             <el-option label="MKV" value="mkv" />
             <el-option label="AVI" value="avi" />
             <el-option label="MOV" value="mov" />
@@ -199,7 +200,7 @@ onMounted(async () => {
 // ── 剪切相关 ──
 const clipDialogVisible = ref(false);
 const clipTarget = ref(null);
-const clipTargetFormat = ref('ts');
+const clipTargetFormat = ref('mp4');
 const isClipping = ref(false);
 const clipLogs = ref([]);
 const clipLogRef = ref(null);

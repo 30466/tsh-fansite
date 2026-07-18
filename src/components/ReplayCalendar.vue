@@ -18,6 +18,12 @@
       </template>
     </el-alert>
 
+    <el-alert type="warning" :closable="false" show-icon style="margin-bottom: 12px">
+      <template #title>
+        如果录播始终加载不出来，则是口袋48源文件损坏，非网络或本网站问题（<b>HTTP 478</b>）
+      </template>
+    </el-alert>
+
     <div class="calendar-wrapper">
       <el-calendar v-model="calendarDate" ref="calendarRef">
         <template #header>
