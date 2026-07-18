@@ -15,6 +15,7 @@ export default defineConfig({
         description: 'CGT48 谭思慧个人应援存档站 - 唱歌记录、口袋48录播、B站安利',
         theme_color: '#ffffff',
         background_color: '#ffffff',
+        lang: 'zh-CN',
         display: 'standalone',
         scope: '/',
         start_url: '/',
