@@ -55,7 +55,15 @@ audio.addEventListener('timeupdate', () => {
 })
 
 audio.addEventListener('loadedmetadata', () => {
-  duration.value = audio.duration
+  if (isFinite(audio.duration)) {
+    duration.value = audio.duration
+  }
+})
+
+audio.addEventListener('durationchange', () => {
+  if (isFinite(audio.duration)) {
+    duration.value = audio.duration
+  }
 })
 
 audio.addEventListener('play', () => {
