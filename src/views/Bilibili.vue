@@ -435,6 +435,7 @@ function openVideo(video) {
   max-width: 1300px;
   margin: 0 auto;
   padding: 0 16px 40px;
+  overflow-x: hidden;
 }
 
 .page-header {

@@ -165,6 +165,7 @@ body {
   margin: 30px auto;
   padding: 0 20px;
   min-height: 80vh;
+  overflow-x: hidden;
 }
 .main-container.is-replay {
   max-width: none;

@@ -155,7 +155,8 @@ function openFullscreen(index) {
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  text-align: center;
   box-shadow: 0 2px 8px rgba(64, 158, 255, 0.35);
   transition: all 0.3s;
   user-select: none;
