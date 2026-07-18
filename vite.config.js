@@ -28,6 +28,7 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,png,jpg,svg,woff2}'],
+        globIgnores: ['**/bg*.jpg', '**/images/election-business/*.jpg'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/i\d\.hdslb\.com\/.*/i,
