@@ -121,7 +121,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Scissor, Upload, Search } from '@element-plus/icons-vue';
 import * as p48 from '@/api/pocket48';
