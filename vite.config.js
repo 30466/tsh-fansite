@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'CGT48 谭思慧 应援存档站',
         short_name: '谭思慧应援站',
         description: 'CGT48 谭思慧个人应援存档站 - 唱歌记录、口袋48录播、B站安利',
-        theme_color: '#1a1a2e',
+        theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
         scope: '/',
