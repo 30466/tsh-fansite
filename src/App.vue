@@ -188,7 +188,27 @@ body {
 </style>
 
 <style>
-/* ── Mobile: hide nav + election float in player mode only ── */
+/* ── Mobile 响应式 ── */
+@media (max-width: 768px) {
+  .nav-bar {
+    padding: 0.5rem 0;
+  }
+  .links {
+    gap: 12px;
+  }
+  .links a,
+  .el-dropdown-link {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.1rem;
+  }
+}
+
+/* ── Player mode ── */
 @media (max-width: 768px) {
   .is-player-mode .nav-bar { display: none; }
   .is-player-mode .election-business-wrapper { display: none; }

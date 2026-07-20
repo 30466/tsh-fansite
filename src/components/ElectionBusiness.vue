@@ -2,6 +2,7 @@
   <div class="election-business-wrapper">
     <!-- 浮动按钮 -->
     <div class="election-trigger" @click="showDialog = true">
+      <el-icon class="trigger-icon"><StarFilled /></el-icon>
       <span>总选业务</span>
     </div>
 
@@ -26,9 +27,18 @@
             v-for="(item, index) in images"
             :key="index"
             class="carousel-slide"
-            @click="openFullscreen(index)"
           >
-            <img :src="item.src" :alt="item.label" />
+            <img v-if="item.src" :src="item.src" :alt="item.label"
+                 @click="openFullscreen(index)" />
+            <div v-else class="announcement-body">
+              <div v-if="announcementLoading" class="announcement-placeholder">加载中...</div>
+              <div v-else-if="announcementError || !announcementText"
+                   class="announcement-placeholder">暂无公告</div>
+              <div v-else class="announcement-text">{{ announcementText }}</div>
+              <div v-if="announcementDate" class="announcement-source">
+                —— 来自 {{ announcementDate }} 的录播公告
+              </div>
+            </div>
             <div class="slide-label">{{ item.label }}</div>
           </div>
         </div>
@@ -74,15 +84,57 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue'
+import { ArrowLeft, ArrowRight, StarFilled } from '@element-plus/icons-vue'
+import * as p48 from '@/api/pocket48'
 
 const images = [
-  { src: '/images/election-business/直播业务.jpg', label: '直播业务' },
+  { label: '直播业务' },
   { src: '/images/election-business/直播间业务.jpg', label: '直播间业务' },
   { src: '/images/election-business/实物业务.jpg', label: '实物业务' },
   { src: '/images/election-business/彩蛋奖励.jpg', label: '彩蛋奖励' },
 ]
+
+const announcementText = ref('')
+const announcementDate = ref('')
+const announcementLoading = ref(false)
+const announcementError = ref(false)
+
+onMounted(() => {
+  fetchLatestAnnouncement()
+})
+
+async function fetchLatestAnnouncement() {
+  announcementLoading.value = true
+  announcementError.value = false
+  try {
+    const roomMap = await p48.getRoomMap()
+    const pocketId = roomMap['谭思慧']
+    if (!pocketId) return
+
+    const data = await p48.getLiveList(Number(pocketId), '0')
+    const liveList = data?.content?.liveList || []
+    liveList.sort((a, b) => Number(b.ctime) - Number(a.ctime))
+
+    for (const replay of liveList) {
+      const detail = await p48.getLiveOne(replay.liveId)
+      const ann = detail?.content?.announcement
+      if (ann && ann.trim()) {
+        announcementText.value = ann
+        const d = new Date(Number(replay.ctime))
+        announcementDate.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+        return
+      }
+    }
+
+    announcementError.value = true
+  } catch (err) {
+    console.error('获取最新公告失败:', err)
+    announcementError.value = true
+  } finally {
+    announcementLoading.value = false
+  }
+}
 
 const showDialog = ref(false)
 const showFullscreen = ref(false)
@@ -129,6 +181,7 @@ function prev() {
 }
 
 function openFullscreen(index) {
+  if (!images[index]?.src) return
   fullscreenIndex.value = index
   showFullscreen.value = true
 }
@@ -144,27 +197,35 @@ function openFullscreen(index) {
 
 @media (max-width: 768px) {
   .election-business-wrapper {
-    top: 120px;
+    top: 60px;
   }
 }
 
 .election-trigger {
-  background: linear-gradient(135deg, #409EFF, #66b1ff);
+  background: linear-gradient(135deg, #1a5276, #204fa1);
   color: #fff;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.35);
+  box-shadow: 0 4px 15px rgba(32, 79, 161, 0.4);
   transition: all 0.3s;
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.trigger-icon {
+  font-size: 13px;
 }
 
 .election-trigger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.5);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(32, 79, 161, 0.55);
 }
 
 .carousel-container {
@@ -205,6 +266,39 @@ function openFullscreen(index) {
   font-size: 16px;
   font-weight: 600;
   color: #303133;
+}
+
+.announcement-body {
+  width: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.announcement-text {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: 15px;
+  color: #303133;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.announcement-source {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #909399;
+  text-align: right;
+}
+
+.announcement-placeholder {
+  text-align: center;
+  color: #909399;
+  padding: 40px 0;
+  font-size: 14px;
 }
 
 .carousel-arrow {
@@ -253,7 +347,7 @@ function openFullscreen(index) {
 }
 
 .dot.active {
-  background: #409EFF;
+  background: #204fa1;
 }
 
 .fullscreen-image-container {
