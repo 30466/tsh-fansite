@@ -62,12 +62,7 @@
         </el-select>
       </div>
     </div>
-    <DanmakuToggle v-model="embedDanmaku" :disabled="outputCategory !== 'video'" style="margin-top: 12px" />
-    <div v-if="embedDanmaku" class="setting-item" style="margin-top: 10px">
-      <span class="label">弹幕时长:</span>
-      <el-slider v-model="danmakuDuration" :min="5" :max="12" :step="1" show-stops style="width: 160px; margin-left: 10px" />
-      <span class="label" style="margin-left: 10px">{{ danmakuDuration }}s (数值越小速度越快)</span>
-    </div>
+    <DanmakuToggle v-model="embedDanmaku" v-model:duration="danmakuDuration" :disabled="outputCategory !== 'video'" style="margin-top: 12px" />
 
     <div style="margin-top: 12px">
       <el-button
@@ -129,7 +124,7 @@ const progress = ref(0)
 const logs = ref(['等待 FFmpeg 加载...'])
 const logBoxRef = ref(null)
 const ffmpegReady = ref(false)
-const danmakuDuration = ref(8)
+const danmakuDuration = ref(12)
 
 const ffmpegMgr = new FFmpegManager(addLog)
 const ffmpegLoading = ref(false)
