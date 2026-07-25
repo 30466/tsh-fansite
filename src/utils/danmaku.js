@@ -70,8 +70,8 @@ const DANMAKU_COLORS = [
  * @param {Object} options
  * @param {number} options.videoWidth   - 视频宽度 (默认 1280)
  * @param {number} options.videoHeight  - 视频高度 (默认 720)
- * @param {number} options.fontSize     - 字体大小 (默认 36)
- * @param {number} options.duration     - 弹幕划过屏幕的秒数 (默认 8)
+ * @param {number} options.fontSize     - 字体大小 (默认: 视频高度/25)
+ * @param {number} options.duration     - 弹幕划过屏幕的秒数 (默认 8, 建议 6-9)
  * @param {number} options.opacity      - 透明度 0-1 (默认 0.85)
  * @returns {string} ASS 字幕内容
  */
@@ -79,7 +79,7 @@ export function lrcToASS(danmakuList, options = {}) {
   const {
     videoWidth = 1280,
     videoHeight = 720,
-    fontSize = 36,
+    fontSize = Math.floor(videoHeight / 25), 
     duration = 8,
     opacity = 0.85
   } = options

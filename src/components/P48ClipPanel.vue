@@ -63,6 +63,11 @@
       </div>
     </div>
     <DanmakuToggle v-model="embedDanmaku" :disabled="outputCategory !== 'video'" style="margin-top: 12px" />
+    <div v-if="embedDanmaku" class="setting-item" style="margin-top: 10px">
+      <span class="label">弹幕时长:</span>
+      <el-slider v-model="danmakuDuration" :min="5" :max="12" :step="1" show-stops style="width: 160px; margin-left: 10px" />
+      <span class="label" style="margin-left: 10px">{{ danmakuDuration }}s (数值越小速度越快)</span>
+    </div>
 
     <div style="margin-top: 12px">
       <el-button
@@ -124,6 +129,7 @@ const progress = ref(0)
 const logs = ref(['等待 FFmpeg 加载...'])
 const logBoxRef = ref(null)
 const ffmpegReady = ref(false)
+const danmakuDuration = ref(8)
 
 const ffmpegMgr = new FFmpegManager(addLog)
 const ffmpegLoading = ref(false)
@@ -268,7 +274,10 @@ async function startClip() {
         const resp = await fetch(props.danmakuUrl)
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
         const lrcText = await resp.text()
-        const result = await prepareDanmakuEmbed(ffmpegMgr.ffmpeg, lrcText, {}, addLog, { startSec: overallStart, endSec: overallEnd })
+        const result = await prepareDanmakuEmbed(ffmpegMgr.ffmpeg, lrcText, {}, addLog, 
+          { startSec: overallStart, endSec: overallEnd },
+          { duration: danmakuDuration.value }
+        )
         if (result.empty) {
           addLog('⚠️ 片段范围内无弹幕，跳过嵌入')
         } else {

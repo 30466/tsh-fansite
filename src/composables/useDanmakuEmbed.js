@@ -79,10 +79,16 @@ function stripEmoji(s) {
 }
 
 function buildDrawtextChain(danmakuList, clipStartSec, clipEndSec, options = {}) {
-  const { videoWidth = 1280, videoHeight = 720, fontSize = 30,
-          scrollSpeed = 250, maxCount = 50 } = options
+  const { videoWidth = 1280, videoHeight = 720, 
+          fontSize = Math.floor(videoHeight / 25), // 动态字号
+          duration = 8, // 默认 8s 划过全屏
+          maxCount = 100 } = options
 
-  const maxTextWidthEst = 500
+  // 速度 = (屏幕宽度 + 预估弹幕宽度) / 时长
+  // 预估最大弹幕宽度 600px 左右
+  const scrollSpeed = (videoWidth + 600) / duration
+
+  const maxTextWidthEst = 600
   const maxScrollTime = (videoWidth + maxTextWidthEst + 40) / scrollSpeed
 
   const relevant = danmakuList.filter(dm =>
