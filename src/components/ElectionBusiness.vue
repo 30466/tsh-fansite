@@ -133,22 +133,40 @@ async function fetchLatestAnnouncement() {
     const pocketId = roomMap['谭思慧']
     if (!pocketId) return
 
-    const data = await p48.getLiveList(Number(pocketId), '0')
-    const liveList = data?.content?.liveList || []
-    liveList.sort((a, b) => Number(b.ctime) - Number(a.ctime))
+    let next = '0'
+    let found = false
+    
+    // 限制最多翻页次数，避免无限循环或过长请求
+    const maxPages = 5 
+    for (let page = 0; page < maxPages; page++) {
+      const data = await p48.getLiveList(Number(pocketId), next)
+      const liveList = data?.content?.liveList || []
+      if (liveList.length === 0) break
+      
+      // 按照时间倒序排列（虽然接口通常已经是倒序）
+      liveList.sort((a, b) => Number(b.ctime) - Number(a.ctime))
 
-    for (const replay of liveList) {
-      const detail = await p48.getLiveOne(replay.liveId)
-      const ann = detail?.content?.announcement
-      if (ann && ann.trim()) {
-        announcementText.value = ann
-        const d = new Date(Number(replay.ctime))
-        announcementDate.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-        return
+      for (const replay of liveList) {
+        const detail = await p48.getLiveOne(replay.liveId)
+        const ann = detail?.content?.announcement
+        if (ann && ann.trim()) {
+          announcementText.value = ann
+          const d = new Date(Number(replay.ctime))
+          announcementDate.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+          found = true
+          break
+        }
       }
+      
+      if (found) return
+      
+      next = data?.content?.next
+      if (!next || next === '0' || next === '-1') break
     }
 
-    announcementError.value = true
+    if (!found) {
+      announcementError.value = true
+    }
   } catch (err) {
     console.error('获取最新公告失败:', err)
     announcementError.value = true

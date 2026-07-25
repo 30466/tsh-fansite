@@ -37,20 +37,44 @@ function pocketHeaders() {
   }
 }
 
+let mappingCache = null
+let mappingPromise = null
+
 export async function getMapping() {
-  return withRetry(async () => {
+  if (mappingCache) return mappingCache
+  if (mappingPromise) return mappingPromise
+
+  mappingPromise = withRetry(async () => {
     const res = await fetch('/api/public/snh48/mapping')
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return res.json()
-  }, '成员映射')
+    const data = await res.json()
+    mappingCache = data
+    return data
+  }, '成员映射').finally(() => {
+    mappingPromise = null
+  })
+
+  return mappingPromise
 }
 
+let roomMapCache = null
+let roomMapPromise = null
+
 export async function getRoomMap() {
-  return withRetry(async () => {
+  if (roomMapCache) return roomMapCache
+  if (roomMapPromise) return roomMapPromise
+
+  roomMapPromise = withRetry(async () => {
     const res = await fetch('/api/public/snh48/room-map')
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return res.json()
-  }, '房间映射')
+    const data = await res.json()
+    roomMapCache = data
+    return data
+  }, '房间映射').finally(() => {
+    roomMapPromise = null
+  })
+
+  return roomMapPromise
 }
 
 export async function getLiveList(userId, next = '0') {
