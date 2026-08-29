@@ -2,7 +2,6 @@
   <div class="bilibili-page">
     <!-- 顶部统计 -->
     <div class="page-header">
-      <h1 class="page-title">🎬 B站安利 · 谭思慧</h1>
       <p class="page-stats">
         共 <b>{{ allVideos.length }}</b> 个视频 · 来自 <b>{{ upList.length }}</b> 位UP主
         <span v-if="activeUp"> · 当前UP主: <b>{{ activeUp }}</b> ({{ upFilteredCount }}个视频)</span>
@@ -11,14 +10,23 @@
 
     <!-- UP主筛选区 -->
     <el-card class="up-filter-card" shadow="never">
-      <div class="up-filter-area">
+      <div class="up-filter-area featured-up-row">
         <span
           class="up-chip"
           :class="{ active: activeUp === null }"
           @click="activeUp = null"
         >全部 ({{ allVideos.length }})</span>
         <span
-          v-for="up in upList"
+          v-for="up in featuredUps"
+          :key="up.name"
+          class="up-chip"
+          :class="{ active: activeUp === up.name }"
+          @click="activeUp = activeUp === up.name ? null : up.name"
+        >{{ up.name }} ({{ up.videoCount }})</span>
+      </div>
+      <div class="up-filter-area regular-up-row">
+        <span
+          v-for="up in regularUps"
           :key="up.name"
           class="up-chip"
           :class="{ active: activeUp === up.name }"
@@ -205,10 +213,12 @@ const searchMode = ref('exact') // 'exact' | 'fuzzy'
 const activeUp = ref(null)      // null = 全部
 const sortField = ref('created')
 const sortAsc = ref(false)      // 默认降序
+const featuredUps = computed(() => upList.value.filter(up => up.name === '谭思慧在此'))
+const regularUps = computed(() => upList.value.filter(up => up.name !== '谭思慧在此'))
 
 // ── 快速检索标签 ──
 const quickTags = [
-  'focus', '直拍','舞台','直播', 'minilive', 
+  'focus', '直拍','舞台','直播', '口袋', 'minilive',
   '公演','幻镜','未命名新途' , 'ALL FOR CII','终极任务','遗忘的国度', '赫兹共振','男装','黎明之后','cut', '合集', '路演', 
   '生日公演', 'MVP', 'Party Time','唱歌',
 ]
@@ -467,6 +477,11 @@ function openVideo(video) {
   flex-wrap: wrap;
   gap: 8px;
 }
+.regular-up-row {
+  border-top: 1px dashed #ebeef5;
+  margin-top: 12px;
+  padding-top: 12px;
+}
 .up-chip {
   display: inline-block;
   padding: 6px 14px;
@@ -513,6 +528,11 @@ function openVideo(video) {
 }
 .search-mode {
   flex-shrink: 0;
+  display: inline-flex;
+  flex-wrap: nowrap;
+}
+:deep(.search-mode .el-radio-button__inner) {
+  white-space: nowrap;
 }
 .sort-area {
   display: flex;
