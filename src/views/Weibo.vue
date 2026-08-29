@@ -10,7 +10,7 @@
     <el-card class="account-filter-card" shadow="never">
       <div class="account-filter-area featured-account-row">
         <span class="account-chip" :class="{ active: activeAccount === null }" @click="activeAccount = null">全部（{{ allPosts.length }}）</span>
-        <span v-for="account in featuredAccounts" :key="account.name" class="account-chip featured"
+        <span v-for="account in featuredAccounts" :key="account.name" class="account-chip"
           :class="{ active: activeAccount === account.name }" @click="toggleAccount(account.name)">
           {{ account.name }}（{{ account.postCount }}）
         </span>
