@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_SRC = '/Users/cbj/Documents/code/weibo-core/data';
 const ACCOUNT_LIST = '/Users/cbj/Documents/code/weibo-core/tsh.txt';
 const DATA_OUT = path.join(__dirname, '..', 'public', 'data', 'weibo-merged.json');
-const FILTER_KEYWORD = '谭思慧';
+const FILTER_KEYWORD = '谭思慧超话';
 const UNFILTERED_ACCOUNTS = new Set(['DongganCR', 'CGT48-谭思慧']);
 
 function readJson(filePath) {
@@ -44,6 +44,12 @@ function containsKeyword(post) {
   return Boolean(retweet && String(retweet.text ?? '').includes(FILTER_KEYWORD));
 }
 
+function isRetweet(post) {
+  // weibo-core 的 JSON 使用 isRetweet；同时兼容旧数据字段。
+  // 即使原帖已删除、retweetedStatus 为空，顶层标记仍可识别转发帖。
+  return post.isRetweet === true || post.is_retweet === true || Boolean(post.retweetedStatus);
+}
+
 const accountNames = fs.readFileSync(ACCOUNT_LIST, 'utf8')
   .split(/\r?\n/)
   .map((line) => line.trim())
@@ -55,6 +61,7 @@ const accounts = [];
 const postsById = new Map();
 let totalBeforeFilter = 0;
 let duplicateCount = 0;
+let retweetFilteredCount = 0;
 
 for (const listedName of accountNames) {
   const accountDir = path.join(DATA_SRC, listedName);
@@ -86,7 +93,13 @@ for (const listedName of accountNames) {
     totalBeforeFilter += sourcePosts.length;
 
     let matchedCount = 0;
+    let accountRetweetFilteredCount = 0;
     for (const post of sourcePosts) {
+      if (!skipFilter && isRetweet(post)) {
+        retweetFilteredCount += 1;
+        accountRetweetFilteredCount += 1;
+        continue;
+      }
       if (!skipFilter && !containsKeyword(post)) continue;
       matchedCount += 1;
 
@@ -107,6 +120,7 @@ for (const listedName of accountNames) {
       sourceUpdatedAt: data.updatedAt ?? null,
       crawl: data.crawl ?? null,
       totalBeforeFilter: sourcePosts.length,
+      retweetFilteredCount: accountRetweetFilteredCount,
       postCount: matchedCount,
     });
   }
@@ -122,9 +136,11 @@ const output = {
   source: 'weibo-core/data',
   filterKeyword: FILTER_KEYWORD,
   unfilteredAccounts: [...UNFILTERED_ACCOUNTS],
+  retweetFilterAppliesToFilteredAccounts: true,
   accountCount: accounts.length,
   accounts: accounts.sort((a, b) => b.postCount - a.postCount),
   totalBeforeFilter,
+  retweetFilteredCount,
   totalPosts: posts.length,
   duplicateCount,
   posts,
@@ -135,6 +151,7 @@ fs.writeFileSync(DATA_OUT, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
 console.log('✅ 微博合并完成！');
 console.log(`   账号数量: ${accounts.length}`);
 console.log(`   筛选前微博: ${totalBeforeFilter}`);
+console.log(`   过滤转发帖: ${retweetFilteredCount}`);
 console.log(`   筛选后微博: ${posts.length}`);
 console.log(`   去重条数: ${duplicateCount}`);
 console.log(`   输出文件: ${DATA_OUT}`);
