@@ -108,6 +108,7 @@
 import { ref, onMounted } from 'vue'
 import { ArrowLeft, ArrowRight, StarFilled } from '@element-plus/icons-vue'
 import * as p48 from '@/api/pocket48'
+import { formatBeijingDateTime } from '@/utils/time'
 
 const images = [
   { label: '直播业务' },
@@ -151,8 +152,7 @@ async function fetchLatestAnnouncement() {
         const ann = detail?.content?.announcement
         if (ann && ann.trim()) {
           announcementText.value = ann
-          const d = new Date(Number(replay.ctime))
-          announcementDate.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+          announcementDate.value = formatBeijingDateTime(replay.ctime, { seconds: false })
           found = true
           break
         }
