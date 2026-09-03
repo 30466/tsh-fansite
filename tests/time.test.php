@@ -10,6 +10,7 @@ function expectSame($expected, $actual, string $label): void {
 
 $afternoon = strtotime('2026-08-28T05:56:00Z') * 1000;
 expectSame('2026-08-28 13:56:00', beijingDateTimeFromUnixMs($afternoon)?->format('Y-m-d H:i:s'), 'timestamp display');
+expectSame($afternoon, unixMsFromBeijingDateTime('2026-08-28 13:56:00'), 'Beijing text to timestamp');
 expectSame('2026-08-28', archiveDateFromUnixMs($afternoon), 'afternoon archive');
 expectSame('2026-08-27', archiveDateFromBeijingDateTime('2026-08-28 05:59:59'), 'before boundary');
 expectSame('2026-08-28', archiveDateFromBeijingDateTime('2026-08-28 06:00:00'), 'at boundary');

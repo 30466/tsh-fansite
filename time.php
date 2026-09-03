@@ -25,6 +25,11 @@ function archiveDateFromBeijingDateTime(string $value): ?string {
     return $date->format('Y-m-d');
 }
 
+function unixMsFromBeijingDateTime(string $value): ?int {
+    $date = parseBeijingDateTime($value);
+    return $date === null ? null : ((int) $date->format('U')) * 1000;
+}
+
 function beijingDateTimeFromUnixMs($value): ?DateTimeImmutable {
     if (!is_numeric($value) || (float) $value <= 0) return null;
     $seconds = (int) floor(((float) $value) / 1000);

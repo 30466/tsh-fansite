@@ -114,3 +114,16 @@ export function getArchiveDateFromBeijingDateTime(value) {
     ? previousCivilDate(parts)
     : formatCivilDate(parts)
 }
+
+export function unixMsFromBeijingDateTime(value) {
+  const parts = parseBeijingDateTime(value)
+  if (!parts) return null
+  return Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour - 8,
+    parts.minute,
+    parts.second
+  )
+}
