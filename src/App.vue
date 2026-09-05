@@ -5,7 +5,7 @@
       <nav class="nav-bar">
         <!-- ... 导航栏代码保持不变 ... -->
         <div class="nav-content">
-          <span class="logo">CGT48 谭思慧</span>
+          <span class="logo">SNH48 谭思慧</span>
           <div class="links">
             <!-- 唱歌 - 下拉菜单 -->
             <el-dropdown class="tool-dropdown" trigger="hover" :show-timeout="100">

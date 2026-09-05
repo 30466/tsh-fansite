@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'CGT48 谭思慧 应援存档站',
+        name: 'SNH48 谭思慧 应援存档站',
         short_name: '谭思慧应援站',
-        description: 'CGT48 谭思慧个人应援存档站 - 唱歌记录、口袋48录播、B站安利',
+        description: 'SNH48 谭思慧个人应援存档站 - 唱歌记录、口袋48录播、B站安利',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         lang: 'zh-CN',
