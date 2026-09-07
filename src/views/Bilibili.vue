@@ -140,12 +140,19 @@
             <span v-html="highlightMatches(video.title)"></span>
           </h3>
 
-          <div v-if="video.collection" class="collection-info" :title="`合集：${video.collection.title}`">
+          <div v-if="video.collection" class="collection-info expandable-info" :title="`合集：${video.collection.title}`" @click.stop="toggleCollection(video.bvid)">
             <el-icon><FolderOpened /></el-icon>
             <span>
               合集：{{ video.collection.title }}
               <span v-if="video.collection.index"> · {{ video.collection.index }}/{{ video.collection.total }}</span>
             </span>
+            <el-icon class="expand-icon" :class="{ expanded: expandedCollections.has(video.bvid) }"><ArrowDown /></el-icon>
+          </div>
+          <div v-if="video.collection && expandedCollections.has(video.bvid)" class="episode-dropdown" @click.stop>
+            <button v-for="(episode, idx) in getCollectionEpisodes(video)" :key="`${episode.bvid}-${idx}`"
+              :class="{ current: episode.bvid === video.bvid }" @click="openCollectionEpisode(episode)">
+              <span>{{ idx + 1 }}. {{ episode.title || episode.bvid }}</span><small v-if="episode.duration">{{ formatDuration(episode.duration) }}</small>
+            </button>
           </div>
 
           <div class="video-meta">
@@ -157,17 +164,15 @@
           </div>
 
           <!-- 分P信息 -->
-          <div v-if="video.pages.length > 1" class="pages-info">
+          <div v-if="video.pages.length > 1" class="pages-info expandable-info" @click.stop="togglePages(video.bvid)">
             <el-icon><Tickets /></el-icon>
             <span class="pages-count">{{ video.pages.length }}P</span>
-            <span
-              v-for="(page, idx) in video.pages"
-              :key="page.cid"
-              class="page-part"
-              :class="{ 'page-match': isPartMatched(page.part) }"
-            >
-              {{ page.part || `P${idx + 1}` }}<span v-if="idx < video.pages.length - 1">, </span>
-            </span>
+            <span class="pages-preview">{{ video.pages[0]?.part || 'P1' }}</span>
+            <el-icon class="expand-icon" :class="{ expanded: expandedPages.has(video.bvid) }"><ArrowDown /></el-icon>
+          </div>
+          <div v-if="video.pages.length > 1 && expandedPages.has(video.bvid)" class="pages-dropdown" @click.stop>
+            <button v-for="(page, idx) in video.pages" :key="page.cid" :class="{ 'page-match': isPartMatched(page.part) }"
+              @click="openPage(video, idx)">P{{ idx + 1 }} · {{ page.part || `P${idx + 1}` }}</button>
           </div>
 
           <!-- 简介匹配提示 -->
@@ -207,7 +212,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import {
   Search, Connection, Menu, SortUp, SortDown,
-  VideoPlay, VideoCamera, Tickets, FolderOpened
+  VideoPlay, VideoCamera, Tickets, FolderOpened, ArrowDown
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
@@ -217,6 +222,8 @@ const upList = ref([])
 const collections = ref({})
 const loading = ref(true)
 const collectionCount = computed(() => Object.keys(collections.value).length)
+const expandedCollections = ref(new Set())
+const expandedPages = ref(new Set())
 
 // ── 搜索 & 筛选状态 ──
 const searchText = ref('')
@@ -472,6 +479,21 @@ function openVideo(video) {
   }
   window.open(url, '_blank')
 }
+
+function toggleSet(target, key) {
+  const next = new Set(target.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  target.value = next
+}
+function toggleCollection(bvid) { toggleSet(expandedCollections, bvid) }
+function togglePages(bvid) { toggleSet(expandedPages, bvid) }
+function getCollectionEpisodes(video) {
+  const collection = collections.value[String(video.collection?.id)] || collections.value[video.collection?.id]
+  return (collection?.sections || []).flatMap(section => section.episodes || [])
+}
+function openCollectionEpisode(episode) { window.open(`https://www.bilibili.com/video/${episode.bvid}`, '_blank', 'noopener') }
+function openPage(video, index) { window.open(`https://www.bilibili.com/video/${video.bvid}?p=${index + 1}`, '_blank', 'noopener') }
 </script>
 
 <style scoped>
@@ -732,10 +754,19 @@ function openVideo(video) {
   line-height: 1.5;
 }
 .collection-info > span {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.expandable-info { cursor: pointer; user-select: none; }
+.expand-icon { margin-left: auto; flex: 0 0 auto; transition: transform .2s; }
+.expand-icon.expanded { transform: rotate(180deg); }
+.episode-dropdown,.pages-dropdown { max-height: 220px; overflow-y: auto; margin: 0 0 8px; padding: 6px; border: 1px solid #d9ecff; border-radius: 8px; background: #f7fbff; }
+.episode-dropdown button,.pages-dropdown button { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 6px; background: transparent; color: #606266; text-align: left; line-height: 1.45; cursor: pointer; }
+.episode-dropdown button:hover,.pages-dropdown button:hover,.episode-dropdown button.current { background: #e8f4ff; color: #409eff; }
+.episode-dropdown button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.episode-dropdown button small { flex: 0 0 auto; color: #909399; }
 .up-name {
   color: #409EFF;
   font-weight: 500;
@@ -763,6 +794,7 @@ function openVideo(video) {
   overflow: hidden;
   margin-top: 4px;
 }
+.pages-preview { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pages-count {
   color: #409EFF;
   font-weight: 600;
